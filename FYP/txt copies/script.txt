@@ -42,11 +42,11 @@ function initCalendar() {
 
         datesElement.innerHTML = datesHTML;
 
-        document.querySelectorAll(".date").forEach(d => {
+        document.querySelectorAll(".date"). forEach(d => {
             d.addEventListener("click", () => {
                 const date = d.getAttribute("data-date");
 
-                fetch(`/tasks_by_date?date=${date}`)
+                fetch("/tasks_by_date?date=${date}")
                 .then(response => response.json())
                 .then(data => {
                     const box = document.getElementById("taskBox");
@@ -59,9 +59,9 @@ function initCalendar() {
             
                     }
 
-                    box.innerHTML = `<h3> Tasks for ${date} </h3>`;
+                    box.innerHTML = "<h3> Tasks for ${date} </h3>";
                     data.tasks.forEach (t => {
-                        box.innerHTML += `<p>${t.title} - ${t.description} </p>`;
+                        box.innerHTML += "<p>${tasks.title} - ${tasks.description} </p>";
                     });
                 });
             })

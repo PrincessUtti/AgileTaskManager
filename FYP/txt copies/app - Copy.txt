@@ -151,8 +151,8 @@ def tasks_by_date():
 
     return {
         "tasks": [
-            {"title": t.title, 
-             "description": t.description 
+            {"title": tasks.title, 
+             "description": tasks.description 
              }
             for t in tasks
         ]
