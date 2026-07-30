@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+    <head>
+        <title>Tasks: View Task Information</title>
+        <div id="nav-placeholder"></div>
+        <script src="{{url_for('static', filename='script.js')}}"></script>
+        <script>navBar("nav-placeholder")</script>
+    </head>
+
+    <body>
+
+        <div class="tasksContainer">
+            {% for task in tasks %}
+                <div class="task">
+                    <h3>{{ task.title }}</h3>
+                    <p>{{ task.description }}</p>
+                    <p>Due Date: {{ task.due_date }}</p>
+                    <p>Start Time: {{ task.start_time }}</p>
+                    <p>End Time: {{ task.end_time }}</p>
+                    <p>Completion Level: {{ task.completion_level }}</p>
+                    <p>Priority: {{ task.set_priority }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% for task in tasks %}
+        <form action="/update_task/{{task.id}}" method="POST">
+                <input type="text" name="title" value="{{task.title}}" placeholder="Task Name" required>
+                <br></br>
+                <input type="text" name="description" value="{{task.description}}" placeholder="Task Description" required>
+                <br></br>
+                <input type="date" name="due_date" value="{{task.date}}" placeholder="Task Due Date" required>
+                <br></br>
+                <input type="time" name="time" value="{{task.time}}" placeholder="Task Time" required>
+                <br></br>
+
+                
+                <select name="completion_level" required>
+                    <option value="" disabled selected>Select Status</option>
+                    <option value="Not Started">Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="On Hold">On Hold/More Info Needed</option>
+                </select>
+                <br></br>
+                
+                
+                <select name="set_priority" required>
+                    <option value="" disabled selected>Select Priority</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+                <br></br>
+                
+                <button type="submit">Save</button>
+
+            </form>
+            {% endfor %}
+
+    </body>
+
+</html>

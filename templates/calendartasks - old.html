@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, inital-scale=1.0"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Calendar Tasks</title>
+</head>
+
+<body>
+
+    <div class="calendar">
+        
+        <div class="header">
+            <button id="prevBtn">
+                <i class="fasolid fa-chevron-left"></i>
+            </button>
+            <div class="monthYear" id="monthYear"></div>
+            <button id="nextBtn">
+                <i class="fasolid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="days">
+            <div class="day">Monday</div>
+            <div class="day">Tuesday</div>
+            <div class="day">Wednesday</div>
+            <div class="day">Thursday</div>
+            <div class="day">Friday</div>
+            <div class="day">Saturday</div>
+            <div class="day">Sunday</div>
+        </div>
+
+        <div class="dates" id="dates"></div>
+
+        <div id="taskBox"></div>
+
+        <!-- 🔥 YOUR POPUP INSERTED HERE -->
+        <div class="container">
+            <div class="popup" id="popup">
+                <h2>Tester 1</h2>
+
+                <button type="button" onclick="closePopup()">close</button>
+
+                <form action="/update_task/{{task.id}}" method="POST">
+                    <input type="text" name="task_name" placeholder="Task Name">
+                    <br><br>
+
+                    <input type="text" name="task_description" placeholder="Task Description">
+                    <br><br>
+
+                    <input type="date" name="task_due_date">
+                    <br><br>
+
+                    <input type="time" name="task_time">
+                    <br><br>
+
+                    <select name="task_status">
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Hold">Needs Further Work</option>
+                    </select>
+                    <br><br>
+
+                    <select name="task_priority">
+                        <option value="" disabled selected>Select Priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <br><br>
+
+                    <button type="submit" onclick="closePopup()">OK</button>
+                </form>
+
+                <p>Your task has been successfully added</p>
+            </div>
+        </div>
+        <!-- END POPUP -->
+
+    </div>
+
+    <a href="/login">Login</a>
+    <a href="/signup">Signup</a>
+    <a href="/index">Index</a>
+    <a href="/calendar">Calendar</a>
+    <a href="/backlog">Backlog</a>
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script>initCalendar();</script>
+</body>
+</html>
