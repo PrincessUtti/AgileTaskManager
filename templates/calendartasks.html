@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
     <title>
-      Calendar
+      Calendar Tasks
     </title>
 
   </head>
@@ -43,18 +43,54 @@
       <div class="dates" id="dates"></div>
 
       <div id="taskBox"></div>
-    
-    </div>
 
-    <a href="/login">Login</a>
-    <a href="/signup">Signup</a>
-    <a href="/index">Index</a>
-    <a href="/calendar">Calendar</a>
-    <a href="/backlog">Backlog</a>
+      <div id="popup" class="popup">
+        <form id="editForm" method="POST">
+          <input type="text" name="title" placeholder="Task Name">
+          <br></br>
+          <input type="text" name="description" placeholder="Task Description">
+          <br></br>
+          <input type="date" name="due_date" placeholder="Task Due Date">
+          <br></br>
+          <input type="time" name="time" placeholder="Task Time">
+          <br></br>
+
+          
+          <select name="completion_level">
+              <option value="" disabled selected>Select Status</option>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="On Hold">Needs Further Work</option>
+          </select>
+          <br></br>
+          
+          
+          <select name="set_priority">
+              <option value="" disabled selected>Select Priority</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+          </select>
+          <br></br>
+          <button type="submit">Save</button>
+          <button type="button" onclick="closePopup()">Cancel</button>
+        </form>
+      </div>
+    </div>
 
     <!--script src="{{ url_for('static', filename='script.js') }}"></script>-->
     <script src="{{url_for('static', filename='script.js')}}">
     </script>
     <script>initCalendar();</script>
+
+
+    <div id="nav-placeholder"></div>
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+
+    <script>
+      navBar("nav-placeholder")
+    </script>
   </body>
 </html>

@@ -88,6 +88,14 @@
     <!--button onclick="window.location.href='/add_task'">Add Task 3</button-->
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <div id="nav-placeholder"></div>
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+
+    <script>
+      navBar("nav-placeholder")
+    </script>
 </body>
 
 

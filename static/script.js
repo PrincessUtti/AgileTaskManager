@@ -46,7 +46,7 @@ function initCalendar() {
             d.addEventListener("click", () => {
                 const date = d.getAttribute("data-date");
 
-                openPopup();
+                /*openPopup();*/
 
                 fetch(`/tasks_by_date?date=${date}`)
                 .then(response => response.json())
@@ -63,12 +63,19 @@ function initCalendar() {
 
                     box.innerHTML = `<h3> Tasks for ${date} </h3>`;
                     data.tasks.forEach (t => {
-                        box.innerHTML += `<p>${t.title} - ${t.description} </p>`;
+                        box.innerHTML += `<p>${t.title} - ${t.description} <button class="editBtn" data-id="${t.id}">EDIT TASK</button></p>`;
+                    });
+
+                    document.querySelectorAll(".editBtn").forEach(btn =>{
+                        btn.addEventListener("click", () => {
+                            const id = btn.getAttribute("data-id");
+                            openEditForm(id);
+                        });
                     });
                 });
             })
         });
-    }
+    };
 
     prevBtn.addEventListener("click", () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -94,6 +101,12 @@ function openPopup() {
 function closePopup() {
     //document.querySelector(".container").classList.remove("open-popup");
     popup.classList.remove("open-popup");
+}
+
+function openEditForm(taskId){
+    const form = document.getElementById("editForm");
+    form.action = `/update_task/${taskId}`;
+    openPopup();
 }
 
 function navBar(containerId){

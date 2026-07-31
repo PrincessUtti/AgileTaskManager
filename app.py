@@ -147,19 +147,19 @@ def tasks():
 @app.route("/tasks_by_date")
 def tasks_by_date():
     user_id = session.get("user_id")
-    if not user_id:
-        return {"error": "User not logged in"}, 401
+    if "user_id" not in session:
+        return "Not logged in", 401
     
     calendar_date = request.args.get("date")
     tasks = Task.query.filter_by(user_id=user_id, due_date=calendar_date).all()
 
     return {
         "tasks": [
-            {"title": t.title, 
-             "description": t.description,
-             "id": t.id
+            {"id": task.id,
+            "title": task.title, 
+             "description": task.description
              }
-            for t in tasks
+            for task in tasks
         ]
     }
 
