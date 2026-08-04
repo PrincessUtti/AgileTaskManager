@@ -129,3 +129,50 @@ function navBar(containerId){
 
     .catch(err => console.error("Navbar failed to load: ", err));
 }
+
+timelineCells.addEventListener("drop", async (event) => {
+    const taskId = event.dataTransfer.getData("text/plain");
+    const startTime = event.target.dataset.time;
+    const endTime = event.target.dataset.endTime;
+
+    await fetch(`/update_task_time/${taskId}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({start_time: startTime, end_time: endTime})
+    });
+});
+
+function calculatedEndTime(startTime, duration) {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const startDate = new Date(0, 0, 0, hours, minutes);
+    startDate.setMinutes(startDate.getMinutes() + duration);
+    const endHours = String(startDate.getHours()).padStart(2, '0');
+    const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
+    return `${endHours}:${endMinutes}`;
+}
+
+/*
+timelineCells.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    const taskId = event.dataTransfer.getData("text/plain");
+    const targetCell = event.target.closest(".timeline-cell");
+    const targetDate = targetCell.getAttribute("data-date");
+
+    try {
+        const response = await fetch(`/move_task/${taskId}?date=${targetDate}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to move task");
+        }
+
+        updateCalendar();
+    } catch (error) {
+        console.error("Error moving task:", error);
+    }
+});
+*/

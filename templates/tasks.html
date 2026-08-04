@@ -7,7 +7,9 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
         <title>Tasks: View Task Information</title>
+
         <div id="nav-placeholder"></div>
+
     </head>
 
     <body>
@@ -24,44 +26,7 @@
                     <p>Completion Level: {{ task.completion_level }}</p>
                     <p>Priority: {{ task.set_priority }}</p>
                 </div>
-
-                <button type="button" class="btn" onclick="openPopup()">Edit Task</button>
-                <div class="popup" id=""popup>
-                    <h2>Task Editor</h2>
-                    <button type="button" onclick="closePopup()">close</button>
-                    <form action="/update_task/{{task.id}}" method="POST">
-                        <input type="text" name="title" placeholder="Task Name" required>
-                        <br></br>
-                        <input type="text" name="description" placeholder="Task Description" required>
-                        <br></br>
-                        <input type="date" name="due_date" placeholder="Task Due Date" required>
-                        <br></br>
-                        <input type="time" name="time" placeholder="Task Time" required>
-                        <br></br>
-
-                        
-                        <select name="completion_level" required>
-                            <option value="" disabled selected>Select Status</option>
-                            <option value="Not Started">Not Started</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                            <option value="On Hold">Needs Further Work</option>
-                        </select>
-                        <br></br>
-                        
-                        
-                        <select name="set_priority" required>
-                            <option value="" disabled selected>Select Priority</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
-                        </select>
-                        <br></br>
-                        <button type="submit" onclick="closePopup()">OK</button>
-
-                    </form>
-
-                </div>
+                <br></br>
             {% endfor %}
         </div>
     

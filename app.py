@@ -19,6 +19,9 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
 
+    tokenNumber = db.Column(db.Integer, default=10)  # New column for token number
+    timePerToken = db.Column(db.Integer, default=10)  # New column for time per token - need to check if this converts to minutes or seconds
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -42,7 +45,28 @@ class Task(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
+
+class Subtask(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200), nullable=True)
+    due_date = db.Column(db.Date, nullable=True)
+    completion_level = db.Column(ENUM('Not Started', 'In Progress', 'Completed', 'Needs Further Work', name='subtask_completion_levels', create_type=True), nullable=True)
+    set_priority = db.Column(ENUM('Low', 'Medium', 'High', name='subtask_priority_levels', create_type=True), nullable=False)
+
+    start_time = db.Column(db.Time, nullable=True)
+    end_time = db.Column(db.Time, nullable=True)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    duration= db.Column(db.Integer, nullable=True)  # Duration in minutes
+    duration_seconds = db.Column(db.Integer, nullable=True)  # Duration in seconds
+
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)  # Foreign key to Task
+
 ##ROUTES##
+
+##Render Pages##
 @app.route("/") #used to decorate home page
 def index():
     return render_template("index.html")
@@ -54,6 +78,42 @@ def index_page():
 @app.route("/signup", methods=["GET"]) #used to decorate signup page
 def signup_page():
     return render_template("signup.html")
+
+@app.route("/login", methods=["GET"]) #login page
+def login_page():
+    return render_template("login.html")
+    
+@app.route("/calendar") #calendar page
+def calendar_page():
+    return render_template("calendar.html")
+
+@app.route("/calendartasks") #calendar page
+def calendartasks_page():
+    return render_template("calendartasks.html")
+
+@app.route("/backlog") #backlog page
+def backlog_page():
+    return render_template("backlog.html")
+
+@app.route("/nav")
+def nav():
+    return render_template("nav.html")
+'''
+@app.route("/dragAndDrop")
+def dragAndDrop_page():
+    return render_template("dragAndDrop.html")
+'''
+
+@app.route("/dragAndDrop", methods=["POST","GET"])
+def dragTasks():
+    if "user_id" not in session:
+        return "Not logged in", 401
+        #return redirect("/login")  # Redirect to login if user is not logged in
+
+    tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
+    return render_template("dragAndDrop.html", tasks=tasks)
+
+##Defining Functions##
 
 @app.route("/signup", methods=["POST"]) #used to decorate signup page
 def signup():
@@ -68,10 +128,6 @@ def signup():
 
     return "User created"
 
-@app.route("/login", methods=["GET"]) #login page
-def login_page():
-    return render_template("login.html")
-
 @app.route("/login", methods=["POST"]) #login page
 def login():
     username = request.form["username"]
@@ -84,10 +140,6 @@ def login():
         return "Logged in"
     else:
         return "Invalid credentials"
-    
-##@app.route("/loginCheck", methods=["GET"]) #login page
-#def loginCheck_page():
-    #return render_template("loginCheck.html")
 
 @app.route("/loginCheck") #logout page
 def loginCheck():
@@ -95,7 +147,7 @@ def loginCheck():
         return "User is logged in"
     else:
         return "User is not logged in"
-    
+
 @app.route("/logout", methods=["POST", "GET"]) #logout page
 def logout():
     session.clear()
@@ -103,17 +155,14 @@ def logout():
     #session.pop("user_id", None)
     #return "Logged out"
 
-@app.route("/calendar") #calendar page
-def calendar_page():
-    return render_template("calendar.html")
+@app.route("/tasks")
+def tasks():
+    if "user_id" not in session:
+        return "Not logged in", 401
+        #return redirect("/login")  # Redirect to login if user is not logged in
 
-@app.route("/calendartasks") #calendar page
-def calendartasks_page():
-    return render_template("calendartasks.html")
-
-@app.route("/backlog") #backlog page
-def backlog_page():
-    return render_template("backlog.html")
+    tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
+    return render_template("tasks.html", tasks=tasks)
 
 @app.route("/add_task", methods=["POST"]) #add task page
 def add_task():
@@ -134,16 +183,6 @@ def add_task():
 
     return "Task added"
 
-@app.route("/tasks")
-def tasks():
-    if "user_id" not in session:
-        return "Not logged in", 401
-        #return redirect("/login")  # Redirect to login if user is not logged in
-
-    tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
-    return render_template("tasks.html", tasks=tasks)
-
-
 @app.route("/tasks_by_date")
 def tasks_by_date():
     user_id = session.get("user_id")
@@ -162,31 +201,6 @@ def tasks_by_date():
             for task in tasks
         ]
     }
-
-@app.route("/nav")
-def nav():
-    return render_template("nav.html")
-'''
-@app.route("/update_task/<int:task_id>", methods=['POST'])
-def update_task(task_id):
-    if "user_id" not in session:
-        return redirect("/login")
-    
-    task = Task.query.filter_by(id=task_id, user_id=session["user_id"]).first_or_404()
-
-    if not task:
-        return "Task not found", 404
-
-    task.title = request.form.get('title')
-    task.description = request.form.get('description')
-    task.due_date = request.form.get('due_date')
-    task.time = request.form.get('time')
-    task.completion_level = request.form.get('completion_level')
-    task.set_priority = request.form.get('set_priority')
-
-    db.session.commit()
-    return redirect('/tasks')
-'''
 
 @app.route("/update_task/<int:task_id>", methods=['POST'])
 def update_task(task_id):
@@ -215,7 +229,6 @@ def update_task(task_id):
 
     db.session.commit()
     return redirect('/tasks')
-
 
 #makes sure all new tables are created in the database before the app runs
 with app.app_context():
