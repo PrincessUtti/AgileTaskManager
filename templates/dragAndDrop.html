@@ -14,23 +14,57 @@
 
     <h1 draggable="true">Drag and Drop Timetabling KLMS</h1>
 
+    <div class="drag-drop-wrapper">
     <!--Prints Task information-->
         <div class="tasksContainer">
+            <h2>Unscheduled Tasks</h2>
             {% for task in tasks %}
-                <div class="task" id="{{task.id}}"" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
-                    <h3>{{ task.title }}</h3>
-                    <p>{{ task.description }}</p>
-                    <p>Due Date: {{ task.due_date }}</p>
-                    <p>Start Time: {{ task.start_time }}</p>
-                    <p>End Time: {{ task.end_time }}</p>
-                    <p>Completion Level: {{ task.completion_level }}</p>
-                    <p>Priority: {{ task.set_priority }}</p>
-                </div>
-                <br></br>
+                {% if not task.start_time %} <!--and not task.end_time-->
+                    <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                        <h3>{{ task.title }}</h3>
+                        <p>{{ task.description }}</p>
+                        <p>Due Date: {{ task.due_date }}</p>
+                        <p>Start Time: {{ task.start_time }}</p>
+                        <p>End Time: {{ task.end_time }}</p>
+                        <p>Completion Level: {{ task.completion_level }}</p>
+                        <p>Priority: {{ task.set_priority }}</p>
+                    </div>
+                    <br></br>
+                {% endif %}
             {% endfor %}
         </div>
-    
-        <div id="dropzone" style="width: 300px; height: 200px; border: 2px dashed #ccc; margin-top: 20px;">
+
+        <div class="timetableContainer">
+            <div class="timetableGrid" id="timetable">
+                <div class="timeHeader">Time</div>
+                {% for day in days %}
+                    <div class="dayHeader">{{ day.display }}</div>
+                {% endfor %}
+                
+                {% for time in timeslots %} <!--previously hour and hours if want to chaneg later-->
+                    <div class="timeLabel">{{ time }}</div>
+                    {% for day in days %}
+                        <div class="timeslot" data-day="{{ day.day_name }}" data-date="{{ day.date }}" data-time="{{ time }}">
+                            {% for task in tasks %}
+                                {% if task.start_time and task.start_time.strftime("%H:%M") == time and task.due_date.strftime("%Y-%m-%d") == day.date %}
+                                    <div class="task" id="{{task.id}}" draggable="true">
+                                        <h3>{{ task.title }}</h3>
+                                        <p>{{ task.description }}</p>
+                                        <p>Due Date: {{ task.due_date }}</p>
+                                        <p>Start Time: {{ task.start_time }}</p>
+                                        <p>End Time: {{ task.end_time }}</p>
+                                        <p>Completion Level: {{ task.completion_level }}</p>
+                                        <p>Priority: {{ task.set_priority }}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+        <!--div id="dropzone" style="width: 300px; height: 200px; border: 2px dashed #ccc; margin-top: 20px;">
             DropZone
         </div>
 
@@ -64,7 +98,7 @@
                 }
             });
         });
-        </script>
+        </script-->
 
     <!--script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -92,8 +126,9 @@
         });
     </script-->
 
+    <div id="nav-placeholder"></div>
     <script src="{{url_for('static', filename='script.js')}}"></script>
-    <script>navBar("nav-placeholder")</script>
+    <script>navBar("nav-placeholder"); initDragAndDrop();</script>
 
 </body>
 

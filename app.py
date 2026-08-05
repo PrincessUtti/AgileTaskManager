@@ -3,6 +3,7 @@ from flask import Flask, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ENUM
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, time, date, timedelta
 import json
 
 ##APP SETUP##
@@ -98,11 +99,6 @@ def backlog_page():
 @app.route("/nav")
 def nav():
     return render_template("nav.html")
-'''
-@app.route("/dragAndDrop")
-def dragAndDrop_page():
-    return render_template("dragAndDrop.html")
-'''
 
 @app.route("/dragAndDrop", methods=["POST","GET"])
 def dragTasks():
@@ -111,7 +107,65 @@ def dragTasks():
         #return redirect("/login")  # Redirect to login if user is not logged in
 
     tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
-    return render_template("dragAndDrop.html", tasks=tasks)
+
+    today=date.today()
+    monday = today - timedelta(days=today.weekday())
+
+    days = []
+    for i in range(7):
+        day = monday + timedelta(days=i)
+        days.append({
+            "display": day.strftime("%A %d %B"),
+            "date": day.strftime("%Y-%m-%d"),
+            "day_name": day.strftime("%A")
+        })
+
+    timeslots = []
+
+    currentTime = datetime.combine(date.today(), time(8, 0))  # Start at 8:00 AM
+    endTime = datetime.combine(date.today(), time(20, 0))  # End at 8:00 PM 
+
+    while currentTime <= endTime:
+        timeslots.append(currentTime.strftime("%H:%M"))
+        currentTime += timedelta(minutes=30)  # Increment by 30 minutes
+
+    '''
+    current_time = datetime.strptime("08:00", "%H:%M")
+    end_time = datetime.strptime("20:00", "%H:%M")
+'''
+
+    ##days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    return render_template("dragAndDrop.html", tasks=tasks, timeslots=timeslots, days=days)
+
+
+@app.route("/update_task_time/<int:task_id>", methods=['POST'])
+def update_task_time(task_id):
+    if "user_id" not in session:
+        return redirect("/login")
+
+    task = Task.query.filter_by(id=task_id, user_id=session["user_id"]).first_or_404()
+
+    start_time_str = request.form.get("start_time")
+    end_time_str = request.form.get("end_time")
+    due_date_str = request.form.get("due_date")
+
+    if start_time_str:
+        task.start_time = datetime.strptime(start_time_str, "%H:%M").time()
+    if end_time_str:
+        task.end_time = datetime.strptime(end_time_str, "%H:%M").time()
+    if due_date_str:
+        task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+
+
+    db.session.commit()
+    return{"status": "success",
+           "start_time": task.start_time.strftime("%H:%M") if task.start_time else None,
+           "end_time": task.end_time.strftime("%H:%M") if task.end_time else None,
+           "due_date": task.due_date.strftime("%Y-%m-%d") if task.due_date else None
+           }
+    ##return redirect('/dragAndDrop')##
+
 
 ##Defining Functions##
 

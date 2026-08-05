@@ -130,6 +130,101 @@ function navBar(containerId){
     .catch(err => console.error("Navbar failed to load: ", err));
 }
 
+function initDragAndDrop() {
+    const timetable = document.getElementById("timetable");
+    if (!timetable) {
+        console.error("Timetable element not found.");
+        return;
+    }
+
+    let draggedItem = null;
+    document.querySelectorAll(".task").forEach(task => {
+        task.addEventListener("dragstart", (event) => {
+            draggedItem = task;
+            event.dataTransfer.setData("text/plain", task.id);
+        });
+
+        task.addEventListener("dragend", () => {
+            draggedItem = null;
+        });
+    });
+
+    timetable.addEventListener("dragover", (event) => {
+        const slot = event.target.closest(".timeslot"); /*every timeline cell could change to timeslot*/ 
+        if (slot) {
+            event.preventDefault();
+            slot.classList.add("drag-over");
+        }
+    });
+
+    timetable.addEventListener("dragleave", (event) => {
+        const slot = event.target.closest(".timeslot");
+        if (slot) {
+            slot.classList.remove("drag-over");
+        }
+    });
+
+    timetable.addEventListener("drop", async e => {
+        const slot = e.target.closest(".timeslot");
+        if (slot) {
+            e.preventDefault();
+            slot.classList.remove("drag-over");
+
+            const taskId = e.dataTransfer.getData("text/plain");
+            const dragged = document.getElementById(taskId) || draggedItem;
+
+            if (dragged) {
+                slot.appendChild(dragged);
+
+                const formData = new FormData();
+                formData.append("start_time", slot.dataset.time);
+                //formData.append("end_time", slot.dataset.endTime);
+
+                if (slot.dataset.endTime) {
+                    formData.append("due_date", slot.dataset.date);
+                }
+
+                const response = await fetch(`/update_task_time/${taskId}`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    const startEl = dragged.querySelector(".task-start");
+                    const endEl = dragged.querySelector(".task-end");
+                    const dueEl = dragged.querySelector(".task-due");
+
+                    if (startEl && data.start_time) {
+                        startEl.textContent = `Start Time: ${data.start_time}`;
+                    }
+                    if (endEl && data.end_time) {
+                        endEl.textContent = `End Time: ${data.end_time}`;
+                    }
+                    if (dueEl && data.due_date) {
+                        dueEl.textContent = `Due Date: ${data.due_date}`;
+                    }
+                }
+            }
+        }
+    });
+
+    /*
+    timetable.addEventListener("drop", async (event) => {
+        const slot = event.target.closest(".timeslot");
+        if (slot && draggedItem) {
+            event.preventDefault();
+            slot.classList.remove("drag-over");
+            const taskId = draggedItem.id;
+            const startTime = slot.dataset.time;
+            const endTime = slot.dataset.endTime;
+        }
+    });
+    */
+}
+
+/*
 timelineCells.addEventListener("drop", async (event) => {
     const taskId = event.dataTransfer.getData("text/plain");
     const startTime = event.target.dataset.time;
@@ -150,12 +245,12 @@ function calculatedEndTime(startTime, duration) {
     const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
     return `${endHours}:${endMinutes}`;
 }
-
+*/
 /*
 timelineCells.addEventListener("drop", async (event) => {
     event.preventDefault();
     const taskId = event.dataTransfer.getData("text/plain");
-    const targetCell = event.target.closest(".timeline-cell");
+    const targetCell = event.target.closest(".timeslot");
     const targetDate = targetCell.getAttribute("data-date");
 
     try {

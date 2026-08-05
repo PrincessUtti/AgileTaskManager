@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, inital-scale=1.0"> 
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Drag and Drop: Timetabling</title>
+</head>
+
+<body>
+
+
+    <h1 draggable="true">Drag and Drop Timetabling KLMS</h1>
+
+    <!--Prints Task information-->
+        <div class="tasksContainer">
+            {% for task in tasks %}
+                <div class="task" id="{{task.id}}"" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                    <h3>{{ task.title }}</h3>
+                    <p>{{ task.description }}</p>
+                    <p>Due Date: {{ task.due_date }}</p>
+                    <p>Start Time: {{ task.start_time }}</p>
+                    <p>End Time: {{ task.end_time }}</p>
+                    <p>Completion Level: {{ task.completion_level }}</p>
+                    <p>Priority: {{ task.set_priority }}</p>
+                </div>
+                <br></br>
+            {% endfor %}
+        </div>
+    
+        <div id="dropzone" style="width: 300px; height: 200px; border: 2px dashed #ccc; margin-top: 20px;">
+            DropZone
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const dropzone = document.getElementById('dropzone');
+            let draggedItem = null; // Store a reference to the dragged DOM node
+
+            // Track when drag starts
+            document.querySelectorAll('.task').forEach(el => {
+                el.addEventListener('dragstart', e => {
+                    draggedItem = el;
+                });
+
+                // Clean up reference if drag is canceled
+                el.addEventListener('dragend', () => {
+                    draggedItem = null;
+                });
+            });
+
+            // Allow drop zone target
+            dropzone.addEventListener('dragover', e => {
+                e.preventDefault();
+            });
+
+            // Append element on drop
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                if (draggedItem) {
+                    dropzone.appendChild(draggedItem);
+                }
+            });
+        });
+        </script>
+
+    <!--script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const dropzone = document.getElementById('dropzone');
+
+        // Attach dragstart to each task element and store its DOM id
+        document.querySelectorAll('.task').forEach(el => {
+            el.addEventListener('dragstart', e => {
+            // store the element's id string in the drag payload
+            e.dataTransfer.setData('text', el.id);
+            });
+        });
+
+        // Allow dropping
+        dropzone.addEventListener('dragover', e => e.preventDefault());
+
+        // On drop, read the id and append the element into the dropzone
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text') || e.dataTransfer.getData('text/plain');
+            const dragged = document.getElementById(id);
+            if (dragged) dropzone.appendChild(dragged);
+            else console.warn('Dropped id not found in DOM:', id);
+        });
+        });
+    </script-->
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script>navBar("nav-placeholder")</script>
+
+</body>
+
+</html>
