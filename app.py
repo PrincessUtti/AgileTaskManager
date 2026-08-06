@@ -222,13 +222,14 @@ def tasks():
 def add_task():
     name=request.form["task_name"]
     description=request.form["task_description"]
-    due_date=request.form["task_due_date"]
-    time=request.form["task_time"]
+    due_date=datetime.strptime(request.form["task_due_date"], "%Y-%m-%d").date() if request.form.get("task_due_date") else None
+    start_time=datetime.strptime(request.form["task_time"], "%H:%M").time() if request.form.get("task_time") else None
+    #time=request.form["task_time"]
     status=request.form["task_status"]
     priority=request.form["task_priority"]
     user_id=session.get("user_id")  # Assuming you have a way to get the current logged-in user's ID
 
-    new_task = Task(title=name, description=description, due_date=due_date, start_time=time, completion_level=status, set_priority=priority, user_id=user_id)
+    new_task = Task(title=name, description=description, due_date=due_date, start_time=start_time, completion_level=status, set_priority=priority, user_id=user_id)
 
     print(request.form)  # Debugging line to print the form data
 

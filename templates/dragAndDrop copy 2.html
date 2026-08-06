@@ -19,16 +19,18 @@
         <div class="tasksContainer">
             <h2>Unscheduled Tasks</h2>
             {% for task in tasks %}
-                <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
-                    <h3>{{ task.title }}</h3>
-                    <p>{{ task.description }}</p>
-                    <p>Due Date: {{ task.due_date }}</p>
-                    <p>Start Time: {{ task.start_time }}</p>
-                    <p>End Time: {{ task.end_time }}</p>
-                    <p>Completion Level: {{ task.completion_level }}</p>
-                    <p>Priority: {{ task.set_priority }}</p>
-                </div>
-                <br></br>
+                {% if not task.start_time or not task.due_date%} <!--and not task.end_time-->
+                    <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                        <h3>{{ task.title }}</h3>
+                        <p>{{ task.description }}</p>
+                        <p>Due Date: {{ task.due_date }}</p>
+                        <p>Start Time: {{ task.start_time }}</p>
+                        <p>End Time: {{ task.end_time }}</p>
+                        <p>Completion Level: {{ task.completion_level }}</p>
+                        <p>Priority: {{ task.set_priority }}</p>
+                    </div>
+                    <br></br>
+                {% endif %}
             {% endfor %}
         </div>
 

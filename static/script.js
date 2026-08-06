@@ -180,7 +180,7 @@ function initDragAndDrop() {
                 formData.append("start_time", slot.dataset.time);
                 //formData.append("end_time", slot.dataset.endTime);
 
-                if (slot.dataset.endTime) {
+                if (slot.dataset.date) {
                     formData.append("due_date", slot.dataset.date);
                 }
 
