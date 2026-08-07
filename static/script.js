@@ -132,12 +132,15 @@ function navBar(containerId){
 
 function initDragAndDrop() {
     const timetable = document.getElementById("timetable");
+    const unscheduledContainer = document.getElementById("unscheduledTasks");
+
     if (!timetable) {
         console.error("Timetable element not found.");
         return;
     }
 
     let draggedItem = null;
+
     document.querySelectorAll(".task").forEach(task => {
         task.addEventListener("dragstart", (event) => {
             draggedItem = task;
@@ -209,6 +212,36 @@ function initDragAndDrop() {
             }
         }
     });
+
+    if (unscheduledContainer) {
+        unscheduledContainer.addEventListener("dragover", (event) => event.preventDefault());
+
+        unscheduledContainer.addEventListener("drop", async (event) => {
+            event.preventDefault();
+
+            const taskId = event.dataTransfer.getData("text/plain");
+            const dragged = document.getElementById(taskId) || draggedItem;
+
+            if (dragged) {
+                unscheduledContainer.appendChild(dragged);
+
+                // Update task text labels locally
+                const startEl = dragged.querySelector(".task-start");
+                const endEl = dragged.querySelector(".task-end");
+                const dueEl = dragged.querySelector(".task-due");
+
+                if (startEl) startEl.textContent = "Start Time: Not set";
+                if (endEl) endEl.textContent = "End Time: Not set";
+                if (dueEl) dueEl.textContent = "Due Date: Not set";
+
+                // Post empty payload to update backend database fields to NULL
+                await fetch(`/update_task_time/${taskId}`, {
+                    method: "POST",
+                    body: new FormData()
+                });
+            }
+        });
+    }
 
     /*
     timetable.addEventListener("drop", async (event) => {

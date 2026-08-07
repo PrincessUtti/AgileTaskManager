@@ -1,4 +1,6 @@
 ##IMPORTS##
+from asyncio import tasks
+
 from flask import Flask, redirect, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ENUM
@@ -20,8 +22,8 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
 
-    tokenNumber = db.Column(db.Integer, default=10)  # New column for token number
-    timePerToken = db.Column(db.Integer, default=10)  # New column for time per token - need to check if this converts to minutes or seconds
+    sprint_tokens_limit = db.Column(db.Integer, default=10)  # New column for token number
+    token_duration = db.Column(db.Integer, default=10)  # New column for time per token - need to check if this converts to minutes or seconds
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -35,9 +37,7 @@ class Task(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200), nullable=True)
     due_date = db.Column(db.Date, nullable=True)
-    ##completed = db.Column(db.Boolean, default=False)
     completion_level = db.Column(ENUM('Not Started', 'In Progress', 'Completed', 'Needs Further Work', name='completion_levels', create_type=True), nullable=True)
-    ##priority = db.Column(db.String(20), nullable=True)
     set_priority = db.Column(ENUM('Low', 'Medium', 'High', name='priority_levels', create_type=True), nullable=False)
     
     #calendar fields
@@ -45,6 +45,8 @@ class Task(db.Model):
     end_time = db.Column(db.Time, nullable=True)
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    tokens = db.Column(db.Integer, nullable=True)  # Number of tokens for the task
 
 
 class Subtask(db.Model):
@@ -64,6 +66,8 @@ class Subtask(db.Model):
     duration_seconds = db.Column(db.Integer, nullable=True)  # Duration in seconds
 
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)  # Foreign key to Task
+
+    tokens = db.Column(db.Integer, nullable=True)  # Number of tokens for the task
 
 ##ROUTES##
 
@@ -108,6 +112,12 @@ def dragTasks():
 
     tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
 
+    scheduledTokens = sum(
+            (t.tokens if getattr(t, "tokens", None) else 1)
+            for t in tasks
+            if t.start_time and t.due_date
+        )
+
     today=date.today()
     monday = today - timedelta(days=today.weekday())
 
@@ -129,14 +139,7 @@ def dragTasks():
         timeslots.append(currentTime.strftime("%H:%M"))
         currentTime += timedelta(minutes=30)  # Increment by 30 minutes
 
-    '''
-    current_time = datetime.strptime("08:00", "%H:%M")
-    end_time = datetime.strptime("20:00", "%H:%M")
-'''
-
-    ##days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
-    return render_template("dragAndDrop.html", tasks=tasks, timeslots=timeslots, days=days)
+    return render_template("dragAndDrop.html", tasks=tasks, timeslots=timeslots, days=days, scheduledTokens=scheduledTokens)
 
 
 @app.route("/update_task_time/<int:task_id>", methods=['POST'])
@@ -147,17 +150,37 @@ def update_task_time(task_id):
     task = Task.query.filter_by(id=task_id, user_id=session["user_id"]).first_or_404()
 
     start_time_str = request.form.get("start_time")
-    end_time_str = request.form.get("end_time")
+    ##end_time_str = request.form.get("end_time")
     due_date_str = request.form.get("due_date")
 
+    if start_time_str:
+        start_dt = datetime.strptime(start_time_str, "%H:%M")
+        task.start_time = start_dt.time()
+
+        # Calculate end_time from task.tokens and session["token_duration"]
+        task_tokens = task.tokens if task.tokens else 1
+        duration_per_token = session.get("token_duration", 10)
+        total_minutes = task_tokens * duration_per_token
+
+        end_dt = start_dt + timedelta(minutes=total_minutes)
+        task.end_time = end_dt.time()
+    else:
+        task.start_time = None
+        task.end_time = None
+
+    if due_date_str:
+        task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+    elif not start_time_str:
+        task.due_date = None
+
+    '''
     if start_time_str:
         task.start_time = datetime.strptime(start_time_str, "%H:%M").time()
     if end_time_str:
         task.end_time = datetime.strptime(end_time_str, "%H:%M").time()
     if due_date_str:
         task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
-
-
+    '''
     db.session.commit()
     return{"status": "success",
            "start_time": task.start_time.strftime("%H:%M") if task.start_time else None,
@@ -165,7 +188,6 @@ def update_task_time(task_id):
            "due_date": task.due_date.strftime("%Y-%m-%d") if task.due_date else None
            }
     ##return redirect('/dragAndDrop')##
-
 
 ##Defining Functions##
 
@@ -191,6 +213,8 @@ def login():
 
     if user and user.check_password(password):
         session["user_id"] = user.id
+        session["token_limit"] = user.sprint_tokens_limit  # Store the token limit in the session
+        session["token_duration"] = user.token_duration  # Store the token duration in the session
         return "Logged in"
     else:
         return "Invalid credentials"
@@ -285,6 +309,18 @@ def update_task(task_id):
     db.session.commit()
     return redirect('/tasks')
 
+'''
+@app.route("/settings", methods=["GET", "POST"])
+def settings():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user = User.query.get(session["user_id"])
+
+    if request.method == "POST":
+
+    return render_template("settings.html", user=user)
+'''
 #makes sure all new tables are created in the database before the app runs
 with app.app_context():
     db.create_all()
