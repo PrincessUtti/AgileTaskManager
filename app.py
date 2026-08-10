@@ -9,9 +9,14 @@ from datetime import datetime, time, date, timedelta
 import json
 
 ##APP SETUP##
+'''
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
 app.secret_key = "my_secret_key"  # Replace with a secure secret key
+'''
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 ##DB SETUP##
 db = SQLAlchemy(app)
@@ -309,7 +314,6 @@ def update_task(task_id):
     db.session.commit()
     return redirect('/tasks')
 
-'''
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     if "user_id" not in session:
@@ -318,9 +322,25 @@ def settings():
     user = User.query.get(session["user_id"])
 
     if request.method == "POST":
+        new_token_limit = request.form.get("token_limit")
+        new_token_duration = request.form.get("token_duration")
+
+        if new_token_limit:
+            user.sprint_tokens_limit = int(new_token_limit)
+            session["token_limit"] = int(new_token_limit)  # Update session value
+
+        if new_token_duration:
+            user.token_duration = int(new_token_duration)
+            session["token_duration"] = int(new_token_duration)  # Update session value
+
+            db.session.commit()
+            return redirect("/settings")
 
     return render_template("settings.html", user=user)
-'''
+
+
+
+
 #makes sure all new tables are created in the database before the app runs
 with app.app_context():
     db.create_all()

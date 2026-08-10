@@ -1,2 +1,27 @@
-<!DOCTYPE html>
-</html>
+<form action="/settings" method="POST">
+    <div>
+        <label for="token_limit">Sprint Token Limit:</label>
+        <input 
+            type="number" 
+            id="token_limit" 
+            name="token_limit" 
+            value="{{ user.sprint_tokens_limit }}" 
+            min="1" 
+            required
+        >
+    </div>
+
+    <div>
+        <label for="token_duration">Token Duration (minutes):</label>
+        <input 
+            type="number" 
+            id="token_duration" 
+            name="token_duration" 
+            value="{{ user.token_duration }}" 
+            min="1" 
+            required
+        >
+    </div>
+
+    <button type="submit" class="btn">Save Settings</button>
+</form>
