@@ -10,9 +10,9 @@ import json
 import os
 
 ##APP SETUP##
-'''
+
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
+'''app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
 app.secret_key = "my_secret_key"  # Replace with a secure secret key
 '''
 
