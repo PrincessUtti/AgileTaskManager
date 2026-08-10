@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import ENUM
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, time, date, timedelta
 import json
+import os
 
 ##APP SETUP##
 '''
@@ -15,8 +16,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@loc
 app.secret_key = "my_secret_key"  # Replace with a secure secret key
 '''
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://vikkiu:E9O16s5TmSehJXYE2zaegU9obwRcKpBn@dpg-d9qqfh4s728c73ac8da0-a.frankfurt-postgres.render.com/agiletaskmanager?sslmode=require"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 ##DB SETUP##
 db = SQLAlchemy(app)
