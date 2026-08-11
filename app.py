@@ -9,16 +9,40 @@ from datetime import datetime, time, date, timedelta
 import json
 import os
 
-##APP SETUP##
 
 app = Flask(__name__)
-'''app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
+
+# Set secret key (uses environment variable on Render, falls back to local string)
+app.secret_key = os.getenv("SECRET_KEY", "my_secret_key")
+
+# Set database URI (uses Render's DATABASE_URL, falls back to local Postgres)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL",
+    "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
+)
+
+# Prevent database SSL disconnect crashes
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280,
+}
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+##APP SETUP##
+##local database##
+'''app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
 app.secret_key = "my_secret_key"  # Replace with a secure secret key
-'''
+
+
+##render database##
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://vikkiu:E9O16s5TmSehJXYE2zaegU9obwRcKpBn@dpg-d9qqfh4s728c73ac8da0-a.frankfurt-postgres.render.com/agiletaskmanager?sslmode=require"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+'''
 ##DB SETUP##
 db = SQLAlchemy(app)
 
