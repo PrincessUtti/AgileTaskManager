@@ -42,10 +42,10 @@ app.secret_key = "my_secret_key"  # Replace with a secure secret key
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://vikkiu:E9O16s5TmSehJXYE2zaegU9obwRcKpBn@dpg-d9qqfh4s728c73ac8da0-a.frankfurt-postgres.render.com/agiletaskmanager?sslmode=require"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-'''
+
 ##DB SETUP##
 db = SQLAlchemy(app)
-
+'''
 ##MODELS
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
