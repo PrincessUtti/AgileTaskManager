@@ -151,6 +151,15 @@ def dragTasks():
         )'''
 
     scheduledTokens = 0
+    for t in tasks:
+        if t.subtasks:
+            for sub in t.subtasks:
+                if sub.start_time and sub.due_date:
+                    scheduledTokens += (sub.tokens if sub.tokens else 1)
+        else:
+            if t.start_time and t.due_date:
+                scheduledTokens += (t.tokens if t.tokens else 1)
+
 
     today=date.today()
     monday = today - timedelta(days=today.weekday())
@@ -175,7 +184,7 @@ def dragTasks():
 
     return render_template("dragAndDrop.html", tasks=tasks, timeslots=timeslots, days=days, scheduledTokens=scheduledTokens)
 
-
+'''
 @app.route("/update_task_time/<int:task_id>", methods=['POST'])
 def update_task_time(task_id):
     if "user_id" not in session:
@@ -207,14 +216,7 @@ def update_task_time(task_id):
     elif not start_time_str:
         task.due_date = None
 
-    '''
-    if start_time_str:
-        task.start_time = datetime.strptime(start_time_str, "%H:%M").time()
-    if end_time_str:
-        task.end_time = datetime.strptime(end_time_str, "%H:%M").time()
-    if due_date_str:
-        task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
-    '''
+
     db.session.commit()
     return{"status": "success",
            "start_time": task.start_time.strftime("%H:%M") if task.start_time else None,
@@ -222,8 +224,54 @@ def update_task_time(task_id):
            "due_date": task.due_date.strftime("%Y-%m-%d") if task.due_date else None
            }
     ##return redirect('/dragAndDrop')##
-
+'''
 ##Defining Functions##
+
+@app.route("/update_task_time/<task_id>", methods=['POST'])
+def update_task_time(task_id):
+    if "user_id" not in session:
+        return redirect("/login")
+
+    # Handle both subtask string IDs and regular task IDs
+    task_id_str = str(task_id)
+    if task_id_str.startswith("sub-"):
+        sub_id = int(task_id_str.replace("sub-", ""))
+        item = Subtask.query.filter_by(id=sub_id, user_id=session["user_id"]).first_or_404()
+    else:
+        # Fallback check for subtask vs main task by integer ID
+        item = Subtask.query.filter_by(id=int(task_id_str), user_id=session["user_id"]).first()
+        if not item:
+            item = Task.query.filter_by(id=int(task_id_str), user_id=session["user_id"]).first_or_404()
+
+    start_time_str = request.form.get("start_time")
+    due_date_str = request.form.get("due_date")
+
+    if start_time_str:
+        start_dt = datetime.strptime(start_time_str, "%H:%M")
+        item.start_time = start_dt.time()
+
+        item_tokens = int(item.tokens) if item.tokens else 1
+        duration_per_token = int(session.get("token_duration", 10))
+        total_minutes = item_tokens * duration_per_token
+
+        end_dt = start_dt + timedelta(minutes=total_minutes)
+        item.end_time = end_dt.time()
+    else:
+        item.start_time = None
+        item.end_time = None
+
+    if due_date_str:
+        item.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
+    elif not start_time_str:
+        item.due_date = None
+
+    db.session.commit()
+    return {
+        "status": "success",
+        "start_time": item.start_time.strftime("%H:%M") if item.start_time else None,
+        "end_time": item.end_time.strftime("%H:%M") if item.end_time else None,
+        "due_date": item.due_date.strftime("%Y-%m-%d") if item.due_date else None
+    }
 
 @app.route("/signup", methods=["POST"]) #used to decorate signup page
 def signup():
