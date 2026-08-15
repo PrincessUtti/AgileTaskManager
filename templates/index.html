@@ -5,12 +5,27 @@
       Agile Manager
     </title>
 
+    <style>
+      body{
+        background-image: url("{{ url_for('static', filename='background.jpg') }}");
+        background-size: cover;
+        background-color: #accddd;
+      }
+    </style>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+
   </head>
 
-  <body>
+  <body>    
+    <header class="header">
+      <div id="nav-placeholder"></div>
+    </header>
+
+
     <h1> Hopes and Prayers </h1>
 
-    <div id="nav-placeholder"></div>
 
     <script src="{{url_for('static', filename='script.js')}}"></script>
 

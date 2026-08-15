@@ -76,8 +76,9 @@ class Task(db.Model):
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
-    tokens = db.Column(db.Integer, nullable=True)  # Number of tokens for the task
+    tokens = db.Column(db.Integer, nullable=True, default=1)  # Number of tokens for the task
 
+    subtasks = db.relationship('Subtask', backref='task', cascade='all, delete-orphan', lazy=True)  # Relationship to Subtask
 
 class Subtask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,7 +98,7 @@ class Subtask(db.Model):
 
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)  # Foreign key to Task
 
-    tokens = db.Column(db.Integer, nullable=True)  # Number of tokens for the task
+    tokens = db.Column(db.Integer, nullable=True, default=1)  # Number of tokens for the task
 
 ##ROUTES##
 
@@ -140,13 +141,16 @@ def dragTasks():
         return "Not logged in", 401
         #return redirect("/login")  # Redirect to login if user is not logged in
 
+    #user_id = session.get("user_id")
     tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
 
-    scheduledTokens = sum(
+    '''scheduledTokens = sum(
             (t.tokens if getattr(t, "tokens", None) else 1)
             for t in tasks
             if t.start_time and t.due_date
-        )
+        )'''
+
+    scheduledTokens = 0
 
     today=date.today()
     monday = today - timedelta(days=today.weekday())
@@ -274,6 +278,10 @@ def tasks():
 
 @app.route("/add_task", methods=["POST"]) #add task page
 def add_task():
+    if "user_id" not in session:
+        return "Not logged in", 401
+        #return redirect("/login")  # Redirect to login if user is not logged in
+
     name=request.form["task_name"]
     description=request.form["task_description"]
     due_date=datetime.strptime(request.form["task_due_date"], "%Y-%m-%d").date() if request.form.get("task_due_date") else None
@@ -281,13 +289,37 @@ def add_task():
     #time=request.form["task_time"]
     status=request.form["task_status"]
     priority=request.form["task_priority"]
+
     user_id=session.get("user_id")  # Assuming you have a way to get the current logged-in user's ID
 
-    new_task = Task(title=name, description=description, due_date=due_date, start_time=start_time, completion_level=status, set_priority=priority, user_id=user_id)
+    tokens = int(request.form.get("task_tokens", 1) or 1)  # Get the task tokens from the form, default to 1 if not provided
 
-    print(request.form)  # Debugging line to print the form data
+    new_task = Task(title=name, description=description, due_date=due_date, start_time=start_time, completion_level=status, set_priority=priority, user_id=user_id, tokens=tokens)
 
     db.session.add(new_task)
+    db.session.flush()  # Flush to get the new_task.id before committing
+    print(request.form)  # Debugging line to print the form data
+
+    subtask_titles = request.form.getlist("subtask_title[]")
+    #subtask_descriptions = request.form.getlist("subtask_description[]")   
+    subtask_tokens_list = request.form.getlist("subtask_tokens[]")  # Get the list of tokens for each subtask
+
+    sub_tokens = [
+        int(token) for sub_title, token in zip(subtask_titles, subtask_tokens_list) 
+        if sub_title.strip() and token#.strip()
+    ]
+
+    if sub_tokens:
+        tokens = sum(sub_tokens)
+    else:
+        #tokens = 1  # Default to 1 if no subtasks or tokens are provided
+        tokens = int(request.form.get("task_tokens", 1) or 1)  # Get the task tokens from the form, default to 1 if not provided
+
+    for sub_title, sub_token in zip(subtask_titles, sub_tokens):
+        if sub_title.strip():  # Only add subtasks with non-empty titles
+            new_subtask = Subtask(title=sub_title.strip(), task_id=new_task.id, user_id=user_id, set_priority=priority, completion_level=status, tokens=int(sub_token) if sub_token else 1)  # Default to 1 if no token is provided
+            db.session.add(new_subtask)
+
     db.session.commit()
 
     return "Task added"

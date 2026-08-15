@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, inital-scale=1.0"> 
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <title>Drag and Drop: Timetabling</title>
+</head>
+
+<body>
+    <header class="header"></header><div id="nav-placeholder"></div></header>
+
+    <h1 draggable="true">Drag and Drop Timetabling KLMS</h1>
+
+    <div>
+        <h3>Sprint Capacity: {{ scheduledTokens }}/ {{ session.get('token_limit', 10) }} Tokens</h3>
+    </div>
+
+    <div class="drag-drop-wrapper">
+    <!--Prints Task information-->
+        <div class="tasksContainer" id="unscheduledTasks">
+            <h2>Unscheduled Tasks</h2>
+            {% for task in tasks %}
+                {% if not task.start_time or not task.due_date %}
+                    <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                        <h3>{{ task.title }}</h3>
+                        <p>{{ task.description }}</p>
+                        <p class="task-due">Due Date: {{ task.due_date }}</p>
+                        <p class="task-start">Start Time: {{ task.start_time }}</p>
+                        <p class="task-end">End Time: {{ task.end_time }}</p>
+                        <p>Completion Level: {{ task.completion_level }}</p>
+                        <p>Priority: {{ task.set_priority }}</p>
+                    </div>
+                    <br></br>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="timetableContainer">
+            <div class="timetableGrid" id="timetable">
+                <div class="timeHeader">Time</div>
+                {% for day in days %}
+                    <div class="dayHeader">{{ day.display }}</div>
+                {% endfor %}
+
+                {% for time in timeslots %} <!--previously hour and hours if want to chaneg later-->
+                    <div class="timeLabel">{{ time }}</div>
+                    {% for day in days %}
+                        <div class="timeslot" data-day="{{ day.day_name }}" data-date="{{ day.date }}" data-time="{{ time }}">
+                            {% for task in tasks %}
+                                {% if task.start_time and task.due_date and task.start_time.strftime("%H:%M") == time and task.due_date.strftime("%Y-%m-%d") == day.date %}
+                                    <div class="task" id="{{task.id}}" draggable="true">
+                                        <h3>{{ task.title }}</h3>
+                                        <p>{{ task.description }}</p>
+                                        <p class="task-due">Due Date: {{ task.due_date }}</p>
+                                        <p class="task-start">Start Time: {{ task.start_time }}</p>
+                                        <p class="task-end">End Time: {{ task.end_time }}</p>
+                                        <p>Completion Level: {{ task.completion_level }}</p>
+                                        <p>Priority: {{ task.set_priority }}</p>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+        <!--div id="dropzone" style="width: 300px; height: 200px; border: 2px dashed #ccc; margin-top: 20px;">
+            DropZone
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+            const dropzone = document.getElementById('dropzone');
+            let draggedItem = null; // Store a reference to the dragged DOM node
+
+            // Track when drag starts
+            document.querySelectorAll('.task').forEach(el => {
+                el.addEventListener('dragstart', e => {
+                    draggedItem = el;
+                });
+
+                // Clean up reference if drag is canceled
+                el.addEventListener('dragend', () => {
+                    draggedItem = null;
+                });
+            });
+
+            // Allow drop zone target
+            dropzone.addEventListener('dragover', e => {
+                e.preventDefault();
+            });
+
+            // Append element on drop
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                if (draggedItem) {
+                    dropzone.appendChild(draggedItem);
+                }
+            });
+        });
+        </script-->
+
+    <!--script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const dropzone = document.getElementById('dropzone');
+
+        // Attach dragstart to each task element and store its DOM id
+        document.querySelectorAll('.task').forEach(el => {
+            el.addEventListener('dragstart', e => {
+            // store the element's id string in the drag payload
+            e.dataTransfer.setData('text', el.id);
+            });
+        });
+
+        // Allow dropping
+        dropzone.addEventListener('dragover', e => e.preventDefault());
+
+        // On drop, read the id and append the element into the dropzone
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text') || e.dataTransfer.getData('text/plain');
+            const dragged = document.getElementById(id);
+            if (dragged) dropzone.appendChild(dragged);
+            else console.warn('Dropped id not found in DOM:', id);
+        });
+        });
+    </script-->
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script>navBar("nav-placeholder"); initDragAndDrop();</script>
+
+</body>
+
+</html>

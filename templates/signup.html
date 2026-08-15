@@ -4,8 +4,12 @@
     <title>
       Signup
     </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
+    <header class="header">    
+      <div id="nav-placeholder"></div>
+    </header>
     <h1> Create Account </h1>
 
     <form action="/signup" method="POST">
@@ -16,7 +20,6 @@
       <button type="submit"> Sign Up </button>
     </form>
 
-    <div id="nav-placeholder"></div>
 
     <script src="{{url_for('static', filename='script.js')}}"></script>
 

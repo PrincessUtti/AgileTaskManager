@@ -10,7 +10,7 @@
 </head>
 
 <body>
-
+    <header class="header"><div id="nav-placeholder"></div></header>
 
     <h1 draggable="true">Drag and Drop Timetabling KLMS</h1>
 
@@ -24,16 +24,36 @@
             <h2>Unscheduled Tasks</h2>
             {% for task in tasks %}
                 {% if not task.start_time or not task.due_date %}
-                    <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
-                        <h3>{{ task.title }}</h3>
-                        <p>{{ task.description }}</p>
-                        <p class="task-due">Due Date: {{ task.due_date }}</p>
-                        <p class="task-start">Start Time: {{ task.start_time }}</p>
-                        <p class="task-end">End Time: {{ task.end_time }}</p>
-                        <p>Completion Level: {{ task.completion_level }}</p>
-                        <p>Priority: {{ task.set_priority }}</p>
-                    </div>
-                    <br></br>
+                    {% for subtask in task.subtasks %}
+                        {% if not subtask.start_time or not subtask.due_date %}
+                            <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                                <h3>{{ subtask.title }}</h3>
+                                <p>{{ subtask.description }}</p>
+                                <p class="task-due">Due Date: {{ subtask.due_date }}</p>
+                                <p class="task-start">Start Time: {{ subtask.start_time }}</p>
+                                <p class="task-end">End Time: {{ subtask.end_time }}</p>
+                                <p>Tokens: {{subtask.tokens or 1}}</p>
+                                <p>Completion Level: {{ subtask.completion_level }}</p>
+                                <p>Priority: {{ subtask.set_priority }}</p>
+                            </div>
+                            <br></br>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+
+                    {% if not task.start_time or not task.due_date %}
+                        <div class="task" id="{{task.id}}" draggable="true">
+                            <h3>{{ task.title }}</h3>
+                            <p>{{ task.description }}</p>
+                            <p class="task-due">Due Date: {{ task.due_date }}</p>
+                            <p class="task-start">Start Time: {{ task.start_time }}</p>
+                            <p class="task-end">End Time: {{ task.end_time }}</p>
+                            <p>Tokens Required: {{ task.tokens_required or 1}}</p>
+                            <p>Completion Level: {{ task.completion_level }}</p>
+                            <p>Priority: {{ task.set_priority }}</p>
+                        </div>
+                        <br></br>
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </div>
@@ -50,16 +70,33 @@
                     {% for day in days %}
                         <div class="timeslot" data-day="{{ day.day_name }}" data-date="{{ day.date }}" data-time="{{ time }}">
                             {% for task in tasks %}
-                                {% if task.start_time and task.due_date and task.start_time.strftime("%H:%M") == time and task.due_date.strftime("%Y-%m-%d") == day.date %}
-                                    <div class="task" id="{{task.id}}" draggable="true">
-                                        <h3>{{ task.title }}</h3>
-                                        <p>{{ task.description }}</p>
-                                        <p class="task-due">Due Date: {{ task.due_date }}</p>
-                                        <p class="task-start">Start Time: {{ task.start_time }}</p>
-                                        <p class="task-end">End Time: {{ task.end_time }}</p>
-                                        <p>Completion Level: {{ task.completion_level }}</p>
-                                        <p>Priority: {{ task.set_priority }}</p>
-                                    </div>
+                                { if task.subtasks %}
+                                    {% for subtask in task.subtasks %}
+                                        {% if subtask.start_time and subtask.due_date and subtask.start_time.strftime("%H:%M") == time and subtask.due_date.strftime("%Y-%m-%d") == day.date %}
+                                            <div class="task" id="{{subtask.id}}" draggable="true">
+                                                <h3>{{ subtask.title }}</h3>
+                                                <p><small>Parent: {{ task.title }}</small></p>
+                                                <!-- <p>{{ subtask.description }}</p> -->
+                                                <p class="task-due">Due Date: {{ subtask.due_date }}</p>
+                                                <p class="task-start">Start Time: {{ subtask.start_time }}</p>
+                                                <p class="task-end">End Time: {{ subtask.end_time }}</p>
+                                                <p>Completion Level: {{ subtask.completion_level }}</p>
+                                                <p>Priority: {{ subtask.set_priority }}</p>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% if task.start_time and task.due_date and task.start_time.strftime("%H:%M") == time and task.due_date.strftime("%Y-%m-%d") == day.date %}
+                                        <div class="task" id="{{task.id}}" draggable="true">
+                                            <h3>{{ task.title }}</h3>
+                                            <p>{{ task.description }}</p>
+                                            <p class="task-due">Due Date: {{ task.due_date }}</p>
+                                            <p class="task-start">Start Time: {{ task.start_time }}</p>
+                                            <p class="task-end">End Time: {{ task.end_time }}</p>
+                                            <p>Completion Level: {{ task.completion_level }}</p>
+                                            <p>Priority: {{ task.set_priority }}</p>
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -130,7 +167,6 @@
         });
     </script-->
 
-    <div id="nav-placeholder"></div>
     <script src="{{url_for('static', filename='script.js')}}"></script>
     <script>navBar("nav-placeholder"); initDragAndDrop();</script>
 

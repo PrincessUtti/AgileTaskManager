@@ -6,23 +6,19 @@
     <meta name="viewport" content="width=device-width, inital-scale=1.0"> 
   
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  
     
-    <title>
-        Backlog
-    </title>
+    <title>Backlog</title>
 
 </head>
 
-<body>
+<body>    
+    <header class="header"><div id="nav-placeholder"></div></header>
 
     <div class="container">
-        <button type="submit" class="btn" onclick="openPopup()">
-            Add Task 1
-        </button>
+        <button type="submit" class="btn" onclick="openPopup()"> Add Task </button>
         <div class="popup" id="popup">
-            <h2> Tester 1</h2>
-            <button type="button" onclick="closePopup()">close</button>
+            <h2> Add New Task</h2>
+            <button type="button" onclick="closePopup()" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; cursor: pointer;"> X </button>
             <form action="/add_task" method="POST">
                 <input type="text" name="task_name" placeholder="Task Name" required>
                 <br></br>
@@ -52,13 +48,21 @@
                 </select>
                 <br></br>
                 
-                <!--input type="text" name="status" placeholder="Task Status" required>
+                <input type="number" name="task_tokens" placeholder="Task Tokens (Default: 1)" min="1" value="1"> <!--required>
                 <br></br>
-                <input type="text" name="priority" placeholder="Task Priority" required>
-                <br></br-->
 
+
+                <!-- Subtasks Section -->
+
+                <div class="subtasks-section">
+                    <h3>Subtasks (Optional)</h3>
+                    <div id="subtasks-container"></div>
+                    <button type="button" onclick="addSubtask()">Add Subtask</button> <!--class="add-subtask-btn"-->
+                </div>
+                <br></br>
                 
                 <button type="submit" onclick="closePopup()">OK</button>
+                <!--button type="button" onclick="closePopup()">Close</button-->
 
             </form>
             <p> You task has been successfully added </p>
@@ -70,12 +74,26 @@
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-    <div id="nav-placeholder"></div>
 
     <script src="{{url_for('static', filename='script.js')}}"></script>
 
     <script>
       navBar("nav-placeholder")
+    </script>
+
+    <script>
+        function addSubtask() {
+            const subtasksContainer = document.getElementById("subtasks-container");
+            const subtaskRow = document.createElement("div");
+            subtaskRow.className = 'subtask-row';
+            //subtaskRow.classList.add('subtask-row');
+            subtaskRow.innerHTML = `
+                <input type="text" name="subtask_title[]" placeholder="Subtask Name" required>
+                <input type="number" name="subtask_tokens[]" placeholder="Subtask Tokens" min="1" value="1" required>
+                <button type="button" class="remove-subtask-btn" onclick="this.parentElement.remove()">Remove</button>
+            `;
+            subtasksContainer.appendChild(subtaskRow);
+        }
     </script>
 </body>
 
