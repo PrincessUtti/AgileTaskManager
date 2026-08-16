@@ -234,6 +234,7 @@ def update_task_time(task_id):
 
     # Handle both subtask string IDs and regular task IDs
     task_id_str = str(task_id)
+
     if task_id_str.startswith("sub-"):
         sub_id = int(task_id_str.replace("sub-", ""))
         item = Subtask.query.filter_by(id=sub_id, user_id=session["user_id"]).first_or_404()
@@ -270,7 +271,10 @@ def update_task_time(task_id):
         "status": "success",
         "start_time": item.start_time.strftime("%H:%M") if item.start_time else None,
         "end_time": item.end_time.strftime("%H:%M") if item.end_time else None,
-        "due_date": item.due_date.strftime("%Y-%m-%d") if item.due_date else None
+        "due_date": item.due_date.strftime("%Y-%m-%d") if item.due_date else None,
+        "tokens": item.tokens if item.tokens else 1,
+        "token_duration": session.get("token_duration", 10)
+
     }
 
 @app.route("/signup", methods=["POST"]) #used to decorate signup page

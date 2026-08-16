@@ -10,15 +10,21 @@
 body{
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /*align-items: center;
+  justify-content: center;*/
   background: #6f97c4
 }
 
 .header{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: start;
   padding: 15px 20px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(139, 22, 22, 0.1);
@@ -342,6 +348,7 @@ body{
 }
 
 .timeslot {
+  position: relative;
   background-color: #ffffff;
   min-height: 40px;
   border: 1px dashed #eee;
@@ -354,7 +361,25 @@ body{
 }
 
 .timeslot .task {
+  position:absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  margin: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  background: #fffe18;
+  border: 2px solid #6f97c4;
+  /*
   margin: 2px;
   padding: 4px;
-  font-size: 0.75rem;
+  font-size: 0.75rem;*/
+}
+
+.tasksContainer .task{
+  position: static;
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
 }

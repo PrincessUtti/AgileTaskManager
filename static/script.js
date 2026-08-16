@@ -152,6 +152,14 @@ function initDragAndDrop() {
         });
     });
 
+    /*document.addEventListener("dragstart", (event) => {
+        const task = event.target.closest(".task");
+        if (task) {
+            draggedItem = task;
+            event.dataTransfer.setData("text/plain", task.id);
+        }
+    })*/
+
     timetable.addEventListener("dragover", (event) => {
         const slot = event.target.closest(".timeslot"); /*every timeline cell could change to timeslot*/ 
         if (slot) {
@@ -208,6 +216,9 @@ function initDragAndDrop() {
                     if (dueEl && data.due_date) {
                         dueEl.textContent = `Due Date: ${data.due_date}`;
                     }
+
+                    const totalMinutes = (data.tokens || 1) * (data.tokens_duration || 10);
+                    dragged.style.height = `${(totalMinutes/30)*40}px`
                 }
             }
         }
@@ -224,6 +235,8 @@ function initDragAndDrop() {
 
             if (dragged) {
                 unscheduledContainer.appendChild(dragged);
+
+                dragged.style.height = "auto";
 
                 // Update task text labels locally
                 const startEl = dragged.querySelector(".task-start");

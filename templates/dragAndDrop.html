@@ -23,10 +23,10 @@
         <div class="tasksContainer" id="unscheduledTasks">
             <h2>Unscheduled Tasks</h2>
             {% for task in tasks %}
-                {% if not task.start_time or not task.due_date %}
+                {% if task.subtasks %}
                     {% for subtask in task.subtasks %}
                         {% if not subtask.start_time or not subtask.due_date %}
-                            <div class="task" id="{{task.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
+                            <div class="task" id="sub-{{subtask.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
                                 <h3>{{ subtask.title }}</h3>
                                 <p><small>Parent: {{ task.title }} </small></p>
                                 <!--p>{{ subtask.description }}</p-->
@@ -74,7 +74,7 @@
                                 {% if task.subtasks %}
                                     {% for subtask in task.subtasks %}
                                         {% if subtask.start_time and subtask.due_date and subtask.start_time.strftime("%H:%M") == time and subtask.due_date.strftime("%Y-%m-%d") == day.date %}
-                                            <div class="task" id="{{subtask.id}}" draggable="true">
+                                            <div class="task" id="sub-{{subtask.id}}" draggable="true" data-tokens="{{ subtask.tokens or 1}}">
                                                 <h3>{{ subtask.title }}</h3>
                                                 <p><small>Parent: {{ task.title }}</small></p>
                                                 <!-- <p>{{ subtask.description }}</p> -->
