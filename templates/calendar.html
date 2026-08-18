@@ -6,11 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, inital-scale=1.0"> 
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     
-    <title>
-      Calendar
-    </title>
+    <title>Calendar</title>
 
   </head>
 
@@ -21,13 +20,9 @@
     <div class="calendar">
       
       <div class="header">
-        <button id="prevBtn">
-          <i class="fasolid fa-chevron-left"></i>
-        </button>
+        <button id="prevBtn">Prev</button>
         <div class="monthYear" id="monthYear"></div>
-        <button id="nextBtn">
-          <i class="fasolid fa-chevron-right"></i>
-        </button>
+        <button id="nextBtn">Next</button>
       </div>
 
       <div class="days">
@@ -51,9 +46,8 @@
     <script>initCalendar();</script>
 
 
-    <div id="nav-placeholder"></div>
+    <header class="navHeader"><div id="nav-placeholder"></div></header>
 
-    <script src="{{url_for('static', filename='script.js')}}"></script>
 
     <script>
       navBar("nav-placeholder")

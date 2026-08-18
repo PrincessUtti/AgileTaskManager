@@ -129,7 +129,12 @@ def calendartasks_page():
 
 @app.route("/backlog") #backlog page
 def backlog_page():
-    return render_template("backlog.html")
+    if "user_id" not in session:
+        return "Not logged in", 401
+            #return redirect("/login")  # Redirect to login if user is not logged in
+    
+    tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
+    return render_template("backlog.html", tasks=tasks)
 
 @app.route("/nav")
 def nav():
@@ -374,7 +379,7 @@ def add_task():
 
     db.session.commit()
 
-    return "Task added"
+    return redirect("/backlog")
 
 @app.route("/tasks_by_date")
 def tasks_by_date():

@@ -2,36 +2,58 @@
 *{
   margin:0;
   padding:0;
-  box-sizing: border-box;
+  box-sizing: border-box; 
   font-family: "Poppins", sans serif;
+
 }
 
 
-body{
+main{
   min-height: 100vh;
   display: flex;
-  /*align-items: center;
-  justify-content: center;*/
-  background: #6f97c4
+  
+  justify-content: center;
+  align-items: center;
+  /*background: #6f97c4 ;*/
+
 }
 
-.header{
-  position: fixed;
+.navHeader{
+  /*position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
-
+  z-index: 1000;*/
+  
+  list-style-type: none;
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: center;
   padding: 15px 20px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(139, 22, 22, 0.1);
-  background-color: #fffe18
+  /*background-color: #fffe18*/
+  background-color: #fffe18;
 }
 
-/*
+.header{
+  /*position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;*/
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(139, 22, 22, 0.1);
+  /*background-color: #fffe18*/
+  background-color: transparent;
+}
+
+
 .header button{
   display: flex;
   align-items: center;
@@ -39,18 +61,25 @@ body{
   border: none;
   border-radius: 50%;
   background: #fff;
+  color: #aa16ff;
   cursor :pointer;
   width: 40px;
   height: 40px;
-  box-shadow: 0 0 4px rgba(0,0,0);
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
-  */
+  
+.date.has-task{
+  background-color: #c02ca0;
+  color: #1f15af;
+  font-weight: bold;
+}
 
 /*CALENDAR FEATURES*/
 .calendar{
   width: 800px;
-  height: auto;
+  height: auto 100vh;
   display: flex;
+  margin: 0;
   flex-direction: column;
   padding: 10px;
   background: #fff;
@@ -63,7 +92,7 @@ body{
   font-size: 20px;
   font-weight: 600;
   color: #6f97c4;
-  width: 150px;
+  width: auto;
 }
 
 .days{
@@ -118,14 +147,29 @@ body{
 .task{
   width: 150%;
   height: flex;
-  background: linear-gradient(to right, rgba(133, 10, 10, 0.5));
+  background: linear-gradient(to right, rgba(236, 233, 233, 0.863));
   border-style:dashed;
   border-width: 2px;
+  border-radius: 25px;
   justify-content: center;
 
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.subtask{
+  width: 100%;
+  height: flex;
+  background: linear-gradient(to right, rgba(29, 179, 179, 0.5));
+  border-style:dashed;
+  border-width: 2px;
+  border-radius: 5px;
+  justify-content: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 /*BACKLOG FEATURES
 .addTaskPopup{
@@ -198,9 +242,9 @@ body{
   visibility: hidden;
   width: 500px;
   max-height: 85vh;
-  /*overflow-y: auto;*/
+  overflow-y: auto;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 20px;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -208,6 +252,46 @@ body{
   text-align: center;
   padding: 20px 20px 60px;
   color: #333;
+  box-shadow: 0 15px 35px rgba(133, 10, 10, 0.5) 0 0 0 1px rgba(133, 10, 10, 0.5);
+}
+
+.popup .close-btn,
+.popup .close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  font-size: 15px;
+  line-height: 30px;
+  cursor: pointer;
+  background: #e0e0e0;
+  color: #333;
+  box-shadow: none;
+}
+
+.popup input,
+.popup textarea,
+.popup select,
+.subtask-row input [type = "text"],
+.subtask-row input [type = "number"] {
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%;
+}
+
+.input [type="text"]
+.input [type="password"]{
+  border-radius: 15px;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  outline: none;
+  width: 100%; 
 }
 
 .popup button{
@@ -222,11 +306,48 @@ body{
   box-shadow: 0 5px 5px rgb(184, 61, 61);
 }
 
+.popup button [type = "submit"],
+.popup .btn {
+  margin-top: 10px;
+}
+
+.add-subtask-btn {
+  background-color: #13d153 !important;
+  width: auto !important;
+  padding: 5px 15px !important;
+  margin-top: 10px !important;
+  margin-bottom: 5px 1important;
+}
+
 .open-popup{
   visibility: visible;
   top: 50%;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 0.3s;
+}
+
+.addTaskContainer{
+  width: 20%;
+  height: 100vh;
+  background: linear-gradient(to right, rgba(133, 10, 10, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: absolute;
+
+}
+
+.addTaskButton{
+  padding: 10px 60px;
+  background: #6f97c4;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 5px;
+  transition: transform 0.2s;
 }
 
 /* ALL YOUR EXISTING CSS UNCHANGED ABOVE */
@@ -273,8 +394,8 @@ body{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
-  width: 100%;
-  max-width: 900px;
+  width: 100vh;
+  max-width: 900vh;
 
 }
 
@@ -328,7 +449,7 @@ body{
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  max-height: 80vh;
+  max-height: 75vh;
   overflow-y: auto;
 }
 
@@ -350,7 +471,7 @@ body{
 .timeslot {
   position: relative;
   background-color: #ffffff;
-  min-height: 40px;
+  height: 40px;
   border: 1px dashed #eee;
   transition: background 0.2s ease;
 }
@@ -360,26 +481,35 @@ body{
   border-color: #6f97c4;
 }
 
-.timeslot .task {
+.timeslot .task, .timeslot .subtask {
   position:absolute;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 10;
   margin: 0;
+  padding: 5px 10px;
+  box-sizing: border-box;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   overflow: hidden;
-  background: #fffe18;
+  /*background: #fffe18;*/
   border: 2px solid #6f97c4;
+  border-radius: 5px;
+  font-size: xx-small;
   /*
   margin: 2px;
   padding: 4px;
   font-size: 0.75rem;*/
 }
 
-.tasksContainer .task{
+.tasksContainer .task, .tasksContainer .subtask{
   position: static;
   width: 100%;
   height: auto;
   margin-bottom: 10px;
+  
+}
+
+ul{
+  list-style-type: none;
 }

@@ -14,23 +14,113 @@
 <body>    
     <header class="header"><div id="nav-placeholder"></div></header>
 
-    <div class="container">
-        <button type="submit" class="btn" onclick="openPopup()"> Add Task </button>
-        <div class="popup" id="popup">
-            <h2> Add New Task</h2>
-            <button type="button" onclick="closePopup()" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; cursor: pointer;"> X </button>
-            <form action="/add_task" method="POST">
-                <input type="text" name="task_name" placeholder="Task Name" required>
+    <main>
+
+        <!--ADD TASK BUTTON-->
+        <div class="addTaskcontainer">
+            <button type="submit" class="addTaskButton" onclick="openPopup()"> Add Task </button>
+            <div class="popup" id="popup">
+                <h2> Add New Task</h2>
+                <button type="button" onclick="closePopup()" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; cursor: pointer; float: right; width: 10%;"> X </button>
+                <form action="/add_task" method="POST">
+                    <input type="text" name="task_name" placeholder="Task Name" required>
+                    <br></br>
+                    <input type="text" name="task_description" placeholder="Task Description" required>
+                    <br></br>
+                    <input type="date" name="task_due_date" placeholder="Task Due Date" required>
+                    <br></br>
+                    <input type="time" name="task_time" placeholder="Task Time" required>
+                    <br></br>
+
+                    
+                    <select name="task_status" required>
+                        <option value="" disabled selected>Select Status</option>
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="On Hold">Needs Further Work</option>
+                    </select>
+                    <br></br>
+                    
+                    
+                    <select name="task_priority" required>
+                        <option value="" disabled selected>Select Priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <br></br>
+                    
+                    <input type="number" name="task_tokens" placeholder="Task Tokens (Default: 1)" min="1" value="1"> <!--required-->
+                    <br></br>
+
+
+                    <!-- Subtasks Section -->
+
+                    <div class="subtasks-section">
+                        <h3>Subtasks (Optional)</h3>
+                        <div id="subtasks-container"></div>
+                        <button type="button" onclick="addSubtask()">Add Subtask</button> <!--class="add-subtask-btn"-->
+                        <button type="submit" onclick="closePopup()">OK</button>
+
+                
+                    </div>
+                    
+                    <!--button type="button" onclick="closePopup()">Close</button-->
+                </form>
+            </div>
+
+        </div>
+
+        <!--PRINT TASKS AND SUBTASKS-->
+        <div class="tasksContainer">
+            {% for task in tasks %}
+                <div class="task">
+                    <h3>{{ task.title }}</h3>
+                    <p>{{ task.description }}</p>
+                    <p>Due Date: {{ task.due_date }}</p>
+                    <p>Start Time: {{ task.start_time }}</p>
+                    <p>End Time: {{ task.end_time }}</p>
+                    <p>Completion Level: {{ task.completion_level }}</p>
+                    <p>Priority: {{ task.set_priority }}</p>
+
+                    <br>
+
+                    {% if task.subtasks %}
+                        <p>Subtasks No.: {{ task.subtasks | length}}</p>
+                        <div class="subtask-container">
+                            {% for subtask in task.subtasks %}
+                            <div class="subtask">
+                                <h4> {{subtask.title}} </h4>
+                                <p>Priority: {{ subtask.set_priority }} </p>
+                                <p>Completed?: {{ subtask.completion_level }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    {% endif %}            
+                    <br>
+                    <button type="button" class="btn" onclick="openEditForm(`{{task.id}}`)">Edit Task</button>
+                    <br>
+                </div>
+                
+            {% endfor %}
+        </div>                
+        
+        <!--EDIT TASK BUTTON IN EACH TASK-->
+        <div id="popup" class="popup">
+            <form id="editForm" method="POST">
+                <input type="text" name="title" placeholder="Task Name">
                 <br></br>
-                <input type="text" name="task_description" placeholder="Task Description" required>
+                <input type="text" name="description" placeholder="Task Description">
                 <br></br>
-                <input type="date" name="task_due_date" placeholder="Task Due Date" required>
+                <input type="date" name="due_date" placeholder="Task Due Date">
                 <br></br>
-                <input type="time" name="task_time" placeholder="Task Time" required>
+                <input type="time" name="time" placeholder="Task Time">
                 <br></br>
 
                 
-                <select name="task_status" required>
+                <select name="completion_level">
                     <option value="" disabled selected>Select Status</option>
                     <option value="Not Started">Not Started</option>
                     <option value="In Progress">In Progress</option>
@@ -40,46 +130,25 @@
                 <br></br>
                 
                 
-                <select name="task_priority" required>
+                <select name="set_priority">
                     <option value="" disabled selected>Select Priority</option>
                     <option value="High">High</option>
                     <option value="Medium">Medium</option>
                     <option value="Low">Low</option>
                 </select>
                 <br></br>
-                
-                <input type="number" name="task_tokens" placeholder="Task Tokens (Default: 1)" min="1" value="1"> <!--required>
-                <br></br>
-
-
-                <!-- Subtasks Section -->
-
-                <div class="subtasks-section">
-                    <h3>Subtasks (Optional)</h3>
-                    <div id="subtasks-container"></div>
-                    <button type="button" onclick="addSubtask()">Add Subtask</button> <!--class="add-subtask-btn"-->
-                </div>
-                <br></br>
-                
-                <button type="submit" onclick="closePopup()">OK</button>
-                <!--button type="button" onclick="closePopup()">Close</button-->
-
+                <button type="submit">Save</button>
+                <button type="button" onclick="closePopup()">Cancel</button>
             </form>
-            <p> You task has been successfully added </p>
         </div>
 
-    
-    </div>
-
+    </main>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
-
     <script src="{{url_for('static', filename='script.js')}}"></script>
 
-    <script>
-      navBar("nav-placeholder")
-    </script>
+    <script>navBar("nav-placeholder")</script>
 
     <script>
         function addSubtask() {
@@ -96,6 +165,5 @@
         }
     </script>
 </body>
-
 
 </html>

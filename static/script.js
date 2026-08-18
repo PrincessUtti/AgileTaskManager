@@ -43,6 +43,19 @@ function initCalendar() {
         datesElement.innerHTML = datesHTML;
 
         document.querySelectorAll(".date").forEach(d => {
+            const date = d.getAttribute("data-date");
+
+            if (date){
+                fetch(`/tasks_by_date?date=${date}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.tasks && data.tasks.length > 0){
+                        d.classList.add("has-task")
+                    }
+                })
+            }
+            
+            
             d.addEventListener("click", () => {
                 const date = d.getAttribute("data-date");
 
@@ -105,6 +118,7 @@ function closePopup() {
 
 function openEditForm(taskId){
     const form = document.getElementById("editForm");
+    
     form.action = `/update_task/${taskId}`;
     openPopup();
 }
@@ -141,15 +155,18 @@ function initDragAndDrop() {
 
     let draggedItem = null;
 
-    document.querySelectorAll(".task").forEach(task => {
-        task.addEventListener("dragstart", (event) => {
+    document.addEventListener("dragstart", (event) => {
+        const task = event.target.closest(".task, .subtask");
+        if (task) {
             draggedItem = task;
             event.dataTransfer.setData("text/plain", task.id);
-        });
+        }
+    });
 
-        task.addEventListener("dragend", () => {
+    document.addEventListener("dragend", (event) => {
+        if (event.target.closest(".task, .subtask")) {
             draggedItem = null;
-        });
+        }
     });
 
     /*document.addEventListener("dragstart", (event) => {
@@ -217,7 +234,7 @@ function initDragAndDrop() {
                         dueEl.textContent = `Due Date: ${data.due_date}`;
                     }
 
-                    const totalMinutes = (data.tokens || 1) * (data.tokens_duration || 10);
+                    const totalMinutes = (data.tokens || 1) * (data.token_duration || 10);
                     dragged.style.height = `${(totalMinutes/30)*40}px`
                 }
             }
@@ -237,15 +254,15 @@ function initDragAndDrop() {
                 unscheduledContainer.appendChild(dragged);
 
                 dragged.style.height = "auto";
-
+                
                 // Update task text labels locally
-                const startEl = dragged.querySelector(".task-start");
+                /*const startEl = dragged.querySelector(".task-start");
                 const endEl = dragged.querySelector(".task-end");
                 const dueEl = dragged.querySelector(".task-due");
 
                 if (startEl) startEl.textContent = "Start Time: Not set";
                 if (endEl) endEl.textContent = "End Time: Not set";
-                if (dueEl) dueEl.textContent = "Due Date: Not set";
+                if (dueEl) dueEl.textContent = "Due Date: Not set";*/
 
                 // Post empty payload to update backend database fields to NULL
                 await fetch(`/update_task_time/${taskId}`, {

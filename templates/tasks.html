@@ -17,6 +17,7 @@
             <div id="nav-placeholder"></div>
         </header>
 
+        <h1>Tasks List:</h1>
 
         <!--Prints Task information-->
         <div class="tasksContainer">
@@ -29,8 +30,21 @@
                     <p>End Time: {{ task.end_time }}</p>
                     <p>Completion Level: {{ task.completion_level }}</p>
                     <p>Priority: {{ task.set_priority }}</p>
+
+                    {% if task.subtasks %}
+                        <p>Subtasks No.: {{ task.subtasks | length}}</p>
+                        <div class="subtask-container">
+                            {% for subtask in task.subtasks %}
+                            <div class="subtask">
+                                <h4> {{subtask.title}} </h4>
+                                <p>Priority: {{ subtask.set_priority }} </p>
+                                <p>Completed?: {{ subtask.completion_level }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    {% endif %}
                 </div>
-                <br></br>
             {% endfor %}
         </div>
     

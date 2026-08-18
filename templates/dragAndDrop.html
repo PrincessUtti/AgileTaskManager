@@ -12,7 +12,7 @@
 <body>
     <header class="header"><div id="nav-placeholder"></div></header>
 
-    <h1 draggable="true">Drag and Drop Timetabling KLMS</h1>
+    <h1 style="position: absolute;">Drag and Drop Timetabling KLMS</h1>
 
     <div>
         <h3>Sprint Capacity: {{ scheduledTokens }}/ {{ session.get('token_limit', 10) }} Tokens</h3>
@@ -21,7 +21,7 @@
     <div class="drag-drop-wrapper">
     <!--Prints Task information-->
         <div class="tasksContainer" id="unscheduledTasks">
-            <h2>Unscheduled Tasks</h2>
+            <h2 class="header">Tasks</h2>
             {% for task in tasks %}
                 {% if task.subtasks %}
                     {% for subtask in task.subtasks %}
@@ -74,7 +74,7 @@
                                 {% if task.subtasks %}
                                     {% for subtask in task.subtasks %}
                                         {% if subtask.start_time and subtask.due_date and subtask.start_time.strftime("%H:%M") == time and subtask.due_date.strftime("%Y-%m-%d") == day.date %}
-                                            <div class="task" id="sub-{{subtask.id}}" draggable="true" data-tokens="{{ subtask.tokens or 1}}">
+                                            <div class="subtask" id="sub-{{subtask.id}}" draggable="true" data-tokens="{{ subtask.tokens or 1}}" style="height: {{ (((subtask.tokens or 1)* session.get('token_duration', 10))/30)*40 }}px;">
                                                 <h3>{{ subtask.title }}</h3>
                                                 <p><small>Parent: {{ task.title }}</small></p>
                                                 <!-- <p>{{ subtask.description }}</p> -->
@@ -88,7 +88,7 @@
                                     {% endfor %}
                                 {% else %}
                                     {% if task.start_time and task.due_date and task.start_time.strftime("%H:%M") == time and task.due_date.strftime("%Y-%m-%d") == day.date %}
-                                        <div class="task" id="{{task.id}}" draggable="true">
+                                        <div class="task" id="{{task.id}}" draggable="true" data-tokens="{{task.tokens_required or 1}}" style="height: {{ (((task.tokens or 1)* session.get('token_duration',10))/30)*40}}px;">
                                             <h3>{{ task.title }}</h3>
                                             <p>{{ task.description }}</p>
                                             <p class="task-due">Due Date: {{ task.due_date }}</p>
