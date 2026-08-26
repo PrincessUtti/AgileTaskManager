@@ -293,7 +293,7 @@ def signup():
     db.session.add(user)
     db.session.commit()
 
-    return "User created"
+    return redirect("login")
 
 @app.route("/login", methods=["POST"]) #login page
 def login():
@@ -306,7 +306,7 @@ def login():
         session["user_id"] = user.id
         session["token_limit"] = user.sprint_tokens_limit  # Store the token limit in the session
         session["token_duration"] = user.token_duration  # Store the token duration in the session
-        return "Logged in"
+        return redirect ("/backlog")
     else:
         return "Invalid credentials"
 
@@ -315,7 +315,7 @@ def loginCheck():
     if "user_id" in session:
         return "User is logged in"
     else:
-        return "User is not logged in"
+        return "User not logged in"
 
 @app.route("/logout", methods=["POST", "GET"]) #logout page
 def logout():
