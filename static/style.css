@@ -4,27 +4,16 @@
   padding:0;
   box-sizing: border-box; 
   font-family: "Poppins", sans serif;
-
 }
-
 
 main{
   min-height: 100vh;
   display: flex;
-  
   justify-content: center;
   align-items: center;
-  /*background: #6f97c4 ;*/
-
 }
 
-.navHeader{
-  /*position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;*/
-  
+.navHeader{  
   list-style-type: none;
   display: flex;
   justify-content: space-between;
@@ -32,27 +21,18 @@ main{
   padding: 15px 20px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(139, 22, 22, 0.1);
-  /*background-color: #fffe18*/
   background-color: #fffe18;
 }
 
 .header{
-  /*position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;*/
-
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
   width: 100%;
   box-shadow: 0 2px 4px rgba(139, 22, 22, 0.1);
-  /*background-color: #fffe18*/
   background-color: transparent;
 }
-
 
 .header button{
   display: flex;
@@ -126,7 +106,6 @@ main{
   width: 40px;
   height: 40px;
   transition: 0.2s;
-  /*transition: all 0.3s ease;*/
 }
 
 .date.hover,.date.active{
@@ -139,7 +118,6 @@ main{
 }
 
 .date.inactive:hover{
-  /*background: #fff;*/
   color: #999fa8;
 }
 
@@ -172,29 +150,6 @@ main{
   align-items: center;
 }
 /*BACKLOG FEATURES
-.addTaskPopup{
-  width: 400px;
-  height: auto;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.addTaskButton{
-  padding: 10px 20px;
-  background: #6f97c4;
-  border: 0;
-  outline: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 5px;
-  transition: 0.2s;
-}
-
-.addTaskButton:active{
-  transform: scale(0.95);
-}*/
 
 /*TASK CREATION FEATURES*/
 .container{
@@ -205,22 +160,6 @@ main{
   align-items: center;
   justify-content: center;
 }
-
-/*
-.container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  visibility: hidden;
-  
-  .container.open-popup {
-  visibility: visible;
-}
-
-}*/
-
 
 .btn{
   padding: 10px 60px;
@@ -350,8 +289,6 @@ main{
   transition: transform 0.2s;
 }
 
-/* ALL YOUR EXISTING CSS UNCHANGED ABOVE */
-
 /* NEW TIMETABLE GRID STYLING */
 .drag-drop-wrapper {
   display: flex;
@@ -378,24 +315,11 @@ main{
 }
 
 .tasksContainer {
-  /*width: 100%;
-  max-width: 1250px;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  max-height: 80vh;
-  overflow-y: auto;
-
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 10px;*/
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  width: 100vh;
-  max-width: 900vh;
+  width: 100%;
+  max-width: 1200px;
 
 }
 

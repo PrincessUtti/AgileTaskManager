@@ -32,20 +32,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 ##APP SETUP##
-##local database##
-'''app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:H0tGurl$ummer@localhost:5432/AgileTaskManager"
-app.secret_key = "my_secret_key"  # Replace with a secure secret key
 
-
-##render database##
-
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://vikkiu:E9O16s5TmSehJXYE2zaegU9obwRcKpBn@dpg-d9qqfh4s728c73ac8da0-a.frankfurt-postgres.render.com/agiletaskmanager?sslmode=require"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-##DB SETUP##
-db = SQLAlchemy(app)
-'''
 ##MODELS
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -130,10 +117,12 @@ def calendartasks_page():
 @app.route("/backlog") #backlog page
 def backlog_page():
     if "user_id" not in session:
-        return "Not logged in", 401
-            #return redirect("/login")  # Redirect to login if user is not logged in
+        return redirect("/login")  # Redirect to login if user is not logged in
     
-    tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
+    tasks = Task.query.filter(
+        Task.user_id==session.get("user_id"),
+        Task.completion_level != "Completed"
+    ).all()  # Assuming you have a way to get the current logged-in user's ID
     return render_template("backlog.html", tasks=tasks)
 
 @app.route("/nav")
@@ -143,10 +132,8 @@ def nav():
 @app.route("/dragAndDrop", methods=["POST","GET"])
 def dragTasks():
     if "user_id" not in session:
-        return "Not logged in", 401
-        #return redirect("/login")  # Redirect to login if user is not logged in
+        return redirect("/login")  # Redirect to login if user is not logged in
 
-    #user_id = session.get("user_id")
     tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
 
     '''scheduledTokens = sum(
@@ -154,20 +141,22 @@ def dragTasks():
             for t in tasks
             if t.start_time and t.due_date
         )'''
-
+    
+    today=date.today()
+    monday = today - timedelta(days=today.weekday())
+    
     scheduledTokens = 0
     for t in tasks:
         if t.subtasks:
             for sub in t.subtasks:
-                if sub.start_time and sub.due_date:
+                if sub.start_time and sub.due_date and 0 <= ( sub.due_date - monday).days <7:
                     scheduledTokens += (sub.tokens if sub.tokens else 1)
         else:
-            if t.start_time and t.due_date:
+            if t.start_time and t.due_date and 0 <= ( t.due_date - monday).days <7 :
                 scheduledTokens += (t.tokens if t.tokens else 1)
 
 
-    today=date.today()
-    monday = today - timedelta(days=today.weekday())
+
 
     days = []
     for i in range(7):
@@ -189,47 +178,6 @@ def dragTasks():
 
     return render_template("dragAndDrop.html", tasks=tasks, timeslots=timeslots, days=days, scheduledTokens=scheduledTokens)
 
-'''
-@app.route("/update_task_time/<int:task_id>", methods=['POST'])
-def update_task_time(task_id):
-    if "user_id" not in session:
-        return redirect("/login")
-
-    task = Task.query.filter_by(id=task_id, user_id=session["user_id"]).first_or_404()
-
-    start_time_str = request.form.get("start_time")
-    ##end_time_str = request.form.get("end_time")
-    due_date_str = request.form.get("due_date")
-
-    if start_time_str:
-        start_dt = datetime.strptime(start_time_str, "%H:%M")
-        task.start_time = start_dt.time()
-
-        # Calculate end_time from task.tokens and session["token_duration"]
-        task_tokens = task.tokens if task.tokens else 1
-        duration_per_token = session.get("token_duration", 10)
-        total_minutes = task_tokens * duration_per_token
-
-        end_dt = start_dt + timedelta(minutes=total_minutes)
-        task.end_time = end_dt.time()
-    else:
-        task.start_time = None
-        task.end_time = None
-
-    if due_date_str:
-        task.due_date = datetime.strptime(due_date_str, "%Y-%m-%d").date()
-    elif not start_time_str:
-        task.due_date = None
-
-
-    db.session.commit()
-    return{"status": "success",
-           "start_time": task.start_time.strftime("%H:%M") if task.start_time else None,
-           "end_time": task.end_time.strftime("%H:%M") if task.end_time else None,
-           "due_date": task.due_date.strftime("%Y-%m-%d") if task.due_date else None
-           }
-    ##return redirect('/dragAndDrop')##
-'''
 ##Defining Functions##
 
 @app.route("/update_task_time/<task_id>", methods=['POST'])
@@ -321,14 +269,11 @@ def loginCheck():
 def logout():
     session.clear()
     return redirect("/login")
-    #session.pop("user_id", None)
-    #return "Logged out"
 
 @app.route("/tasks")
 def tasks():
     if "user_id" not in session:
-        return "Not logged in", 401
-        #return redirect("/login")  # Redirect to login if user is not logged in
+        return redirect("/login")  # Redirect to login if user is not logged in
 
     tasks = Task.query.filter_by(user_id=session.get("user_id")).all()  # Assuming you have a way to get the current logged-in user's ID
     return render_template("tasks.html", tasks=tasks)
@@ -336,14 +281,12 @@ def tasks():
 @app.route("/add_task", methods=["POST"]) #add task page
 def add_task():
     if "user_id" not in session:
-        return "Not logged in", 401
-        #return redirect("/login")  # Redirect to login if user is not logged in
+        return redirect("/login")  # Redirect to login if user is not logged in
 
     name=request.form["task_name"]
     description=request.form["task_description"]
     due_date=datetime.strptime(request.form["task_due_date"], "%Y-%m-%d").date() if request.form.get("task_due_date") else None
     start_time=datetime.strptime(request.form["task_time"], "%H:%M").time() if request.form.get("task_time") else None
-    #time=request.form["task_time"]
     status=request.form["task_status"]
     priority=request.form["task_priority"]
 
@@ -369,7 +312,6 @@ def add_task():
     if sub_tokens:
         tokens = sum(sub_tokens)
     else:
-        #tokens = 1  # Default to 1 if no subtasks or tokens are provided
         tokens = int(request.form.get("task_tokens", 1) or 1)  # Get the task tokens from the form, default to 1 if not provided
 
     for sub_title, sub_token in zip(subtask_titles, sub_tokens):
@@ -385,7 +327,7 @@ def add_task():
 def tasks_by_date():
     user_id = session.get("user_id")
     if "user_id" not in session:
-        return "Not logged in", 401
+        return redirect("/login")  # Redirect to login if user is not logged in
     
     calendar_date = request.args.get("date")
     tasks = Task.query.filter_by(user_id=user_id, due_date=calendar_date).all()
@@ -426,7 +368,7 @@ def update_task(task_id):
         setattr(task, model_field, value)
 
     db.session.commit()
-    return redirect('/tasks')
+    return redirect('/backlog')
 
 @app.route("/settings", methods=["GET", "POST"])
 def settings():

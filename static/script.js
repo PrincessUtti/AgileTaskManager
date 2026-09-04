@@ -15,7 +15,6 @@ function initCalendar() {
         const startDay = (firstDay.getDay() + 6) % 7; //firstdayindex // === 0 ? 6 : firstDay.getDay() - 1; // Adjust for Monday start
         const endDay = (lastDay.getDay() + 6) % 7; //lastdayindex// === 0 ? 6 : lastDay.getDay() - 1; // Adjust for Monday start
     
-    //const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const monthYearString = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
         monthYearElement.textContent = monthYearString;
 
@@ -103,24 +102,34 @@ function initCalendar() {
     updateCalendar();
 }
 
-
 let popup = document.getElementById("popup");
 
 function openPopup() {
     popup.classList.add("open-popup");
-    //document.querySelector(".container").classList.add("open-popup");
 }
 
 function closePopup() {
-    //document.querySelector(".container").classList.remove("open-popup");
     popup.classList.remove("open-popup");
 }
 
 function openEditForm(taskId){
     const form = document.getElementById("editForm");
-    
     form.action = `/update_task/${taskId}`;
-    openPopup();
+    const editPopup = document.getElementById("editPopup");
+    if (editPopup) {
+        editPopup.classList.add("open-popup");
+    } else {
+        openPopup();
+    }
+}
+
+function closeEditPopup() {
+    const editPopup = document.getElementById("editPopup");
+    if (editPopup) {
+        editPopup.classList.remove("open-popup");
+    } else {
+        closePopup();
+    }
 }
 
 function navBar(containerId){
@@ -169,14 +178,6 @@ function initDragAndDrop() {
         }
     });
 
-    /*document.addEventListener("dragstart", (event) => {
-        const task = event.target.closest(".task");
-        if (task) {
-            draggedItem = task;
-            event.dataTransfer.setData("text/plain", task.id);
-        }
-    })*/
-
     timetable.addEventListener("dragover", (event) => {
         const slot = event.target.closest(".timeslot"); /*every timeline cell could change to timeslot*/ 
         if (slot) {
@@ -206,7 +207,6 @@ function initDragAndDrop() {
 
                 const formData = new FormData();
                 formData.append("start_time", slot.dataset.time);
-                //formData.append("end_time", slot.dataset.endTime);
 
                 if (slot.dataset.date) {
                     formData.append("due_date", slot.dataset.date);
@@ -255,15 +255,6 @@ function initDragAndDrop() {
 
                 dragged.style.height = "auto";
                 
-                // Update task text labels locally
-                /*const startEl = dragged.querySelector(".task-start");
-                const endEl = dragged.querySelector(".task-end");
-                const dueEl = dragged.querySelector(".task-due");
-
-                if (startEl) startEl.textContent = "Start Time: Not set";
-                if (endEl) endEl.textContent = "End Time: Not set";
-                if (dueEl) dueEl.textContent = "Due Date: Not set";*/
-
                 // Post empty payload to update backend database fields to NULL
                 await fetch(`/update_task_time/${taskId}`, {
                     method: "POST",
@@ -272,65 +263,5 @@ function initDragAndDrop() {
             }
         });
     }
-
-    /*
-    timetable.addEventListener("drop", async (event) => {
-        const slot = event.target.closest(".timeslot");
-        if (slot && draggedItem) {
-            event.preventDefault();
-            slot.classList.remove("drag-over");
-            const taskId = draggedItem.id;
-            const startTime = slot.dataset.time;
-            const endTime = slot.dataset.endTime;
-        }
-    });
-    */
 }
 
-/*
-timelineCells.addEventListener("drop", async (event) => {
-    const taskId = event.dataTransfer.getData("text/plain");
-    const startTime = event.target.dataset.time;
-    const endTime = event.target.dataset.endTime;
-
-    await fetch(`/update_task_time/${taskId}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({start_time: startTime, end_time: endTime})
-    });
-});
-
-function calculatedEndTime(startTime, duration) {
-    const [hours, minutes] = startTime.split(':').map(Number);
-    const startDate = new Date(0, 0, 0, hours, minutes);
-    startDate.setMinutes(startDate.getMinutes() + duration);
-    const endHours = String(startDate.getHours()).padStart(2, '0');
-    const endMinutes = String(startDate.getMinutes()).padStart(2, '0');
-    return `${endHours}:${endMinutes}`;
-}
-*/
-/*
-timelineCells.addEventListener("drop", async (event) => {
-    event.preventDefault();
-    const taskId = event.dataTransfer.getData("text/plain");
-    const targetCell = event.target.closest(".timeslot");
-    const targetDate = targetCell.getAttribute("data-date");
-
-    try {
-        const response = await fetch(`/move_task/${taskId}?date=${targetDate}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error("Failed to move task");
-        }
-
-        updateCalendar();
-    } catch (error) {
-        console.error("Error moving task:", error);
-    }
-});
-*/

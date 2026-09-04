@@ -12,7 +12,7 @@
 <body>
     <header class="header"><div id="nav-placeholder"></div></header>
 
-    <h1 style="position: absolute;">Drag and Drop Timetabling KLMS</h1>
+    <h1 style="position: absolute;"></h1>
 
     <div>
         <h3>Sprint Capacity: {{ scheduledTokens }}/ {{ session.get('token_limit', 10) }} Tokens</h3>
@@ -29,10 +29,6 @@
                             <div class="task" id="sub-{{subtask.id}}" draggable="true"> <!--ondragstart="event.dataTransfer.setData('text', this.id)"-->
                                 <h3>{{ subtask.title }}</h3>
                                 <p><small>Parent: {{ task.title }} </small></p>
-                                <!--p>{{ subtask.description }}</p-->
-                                <p class="task-due">Due Date: {{ subtask.due_date }}</p>
-                                <p class="task-start">Start Time: {{ subtask.start_time }}</p>
-                                <p class="task-end">End Time: {{ subtask.end_time }}</p>
                                 <p>Tokens: {{subtask.tokens or 1}}</p>
                                 <p>Completion Level: {{ subtask.completion_level }}</p>
                                 <p>Priority: {{ subtask.set_priority }}</p>
@@ -46,9 +42,6 @@
                         <div class="task" id="{{task.id}}" draggable="true">
                             <h3>{{ task.title }}</h3>
                             <p>{{ task.description }}</p>
-                            <p class="task-due">Due Date: {{ task.due_date }}</p>
-                            <p class="task-start">Start Time: {{ task.start_time }}</p>
-                            <p class="task-end">End Time: {{ task.end_time }}</p>
                             <p>Tokens Required: {{ task.tokens_required or 1}}</p>
                             <p>Completion Level: {{ task.completion_level }}</p>
                             <p>Priority: {{ task.set_priority }}</p>
@@ -77,10 +70,6 @@
                                             <div class="subtask" id="sub-{{subtask.id}}" draggable="true" data-tokens="{{ subtask.tokens or 1}}" style="height: {{ (((subtask.tokens or 1)* session.get('token_duration', 10))/30)*40 }}px;">
                                                 <h3>{{ subtask.title }}</h3>
                                                 <p><small>Parent: {{ task.title }}</small></p>
-                                                <!-- <p>{{ subtask.description }}</p> -->
-                                                <p class="task-due">Due Date: {{ subtask.due_date }}</p>
-                                                <p class="task-start">Start Time: {{ subtask.start_time }}</p>
-                                                <p class="task-end">End Time: {{ subtask.end_time }}</p>
                                                 <p>Completion Level: {{ subtask.completion_level }}</p>
                                                 <p>Priority: {{ subtask.set_priority }}</p>
                                             </div>
@@ -91,9 +80,6 @@
                                         <div class="task" id="{{task.id}}" draggable="true" data-tokens="{{task.tokens_required or 1}}" style="height: {{ (((task.tokens or 1)* session.get('token_duration',10))/30)*40}}px;">
                                             <h3>{{ task.title }}</h3>
                                             <p>{{ task.description }}</p>
-                                            <p class="task-due">Due Date: {{ task.due_date }}</p>
-                                            <p class="task-start">Start Time: {{ task.start_time }}</p>
-                                            <p class="task-end">End Time: {{ task.end_time }}</p>
                                             <p>Completion Level: {{ task.completion_level }}</p>
                                             <p>Priority: {{ task.set_priority }}</p>
                                         </div>
@@ -106,67 +92,6 @@
             </div>
         </div>
     </div>
-        <!--div id="dropzone" style="width: 300px; height: 200px; border: 2px dashed #ccc; margin-top: 20px;">
-            DropZone
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-            const dropzone = document.getElementById('dropzone');
-            let draggedItem = null; // Store a reference to the dragged DOM node
-
-            // Track when drag starts
-            document.querySelectorAll('.task').forEach(el => {
-                el.addEventListener('dragstart', e => {
-                    draggedItem = el;
-                });
-
-                // Clean up reference if drag is canceled
-                el.addEventListener('dragend', () => {
-                    draggedItem = null;
-                });
-            });
-
-            // Allow drop zone target
-            dropzone.addEventListener('dragover', e => {
-                e.preventDefault();
-            });
-
-            // Append element on drop
-            dropzone.addEventListener('drop', e => {
-                e.preventDefault();
-                if (draggedItem) {
-                    dropzone.appendChild(draggedItem);
-                }
-            });
-        });
-        </script-->
-
-    <!--script>
-        document.addEventListener('DOMContentLoaded', () => {
-        const dropzone = document.getElementById('dropzone');
-
-        // Attach dragstart to each task element and store its DOM id
-        document.querySelectorAll('.task').forEach(el => {
-            el.addEventListener('dragstart', e => {
-            // store the element's id string in the drag payload
-            e.dataTransfer.setData('text', el.id);
-            });
-        });
-
-        // Allow dropping
-        dropzone.addEventListener('dragover', e => e.preventDefault());
-
-        // On drop, read the id and append the element into the dropzone
-        dropzone.addEventListener('drop', e => {
-            e.preventDefault();
-            const id = e.dataTransfer.getData('text') || e.dataTransfer.getData('text/plain');
-            const dragged = document.getElementById(id);
-            if (dragged) dropzone.appendChild(dragged);
-            else console.warn('Dropped id not found in DOM:', id);
-        });
-        });
-    </script-->
 
     <script src="{{url_for('static', filename='script.js')}}"></script>
     <script>navBar("nav-placeholder"); initDragAndDrop();</script>

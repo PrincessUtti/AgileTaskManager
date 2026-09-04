@@ -66,7 +66,6 @@
                 
                     </div>
                     
-                    <!--button type="button" onclick="closePopup()">Close</button-->
                 </form>
             </div>
 
@@ -108,7 +107,9 @@
         </div>                
         
         <!--EDIT TASK BUTTON IN EACH TASK-->
-        <div id="popup" class="popup">
+        <div id="editPopup" class="popup">
+            <button type="button" onclick="closeEditPopup()" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; cursor: pointer; float: right; width: 10%;"> X </button>
+
             <form id="editForm" method="POST">
                 <input type="text" name="title" placeholder="Task Name">
                 <br></br>
@@ -138,7 +139,7 @@
                 </select>
                 <br></br>
                 <button type="submit">Save</button>
-                <button type="button" onclick="closePopup()">Cancel</button>
+                <button type="button" onclick="closeEditPopup()">Cancel</button>
             </form>
         </div>
 
@@ -155,7 +156,6 @@
             const subtasksContainer = document.getElementById("subtasks-container");
             const subtaskRow = document.createElement("div");
             subtaskRow.className = 'subtask-row';
-            //subtaskRow.classList.add('subtask-row');
             subtaskRow.innerHTML = `
                 <input type="text" name="subtask_title[]" placeholder="Subtask Name" required>
                 <input type="number" name="subtask_tokens[]" placeholder="Subtask Tokens" min="1" value="1" required>
